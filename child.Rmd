@@ -1,0 +1,13 @@
+---
+title: "test"
+author: "moi"
+date: "2025-04-02"
+output: html_document
+---
+
+```{r cars}
+a = 12
+
+print(a + 10)
+
+```
