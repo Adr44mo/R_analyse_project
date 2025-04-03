@@ -42,3 +42,7 @@ library(cluster) # classification non supervisée
 ```{r child = "Classification_non_supervisée.Rmd"}
 
 ```
+
+```{r child = "Annex.Rmd"}
+
+```
