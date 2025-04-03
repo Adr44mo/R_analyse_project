@@ -1,0 +1,405 @@
+```{r, echo=FALSE, results='hide'}
+# Charger la librairie nécessaire
+library(tidyverse)
+
+# 1. Charger le fichier CSV
+load_marketcap_data <- function() {
+  file_path <- "Morille_Adrien_Malleret_Antoine_yahoo_finance.csv"  # Mets ici le chemin complet si nécessaire
+  df_marketcap <- read.csv(file_path)
+  return(df_marketcap)
+}
+
+# 2. Filtrer les lignes de 0 à 1500
+filter_data <- function(df_marketcap) {
+  filtered_data <- df_marketcap[1:1500, ]
+  return(filtered_data)
+}
+
+# 3. Enregistrer le résultat dans un nouveau fichier CSV
+save_to_csv <- function(filtered_data) {
+  write.csv(filtered_data, "marketcap_0_1500.csv", row.names = FALSE)
+}
+
+# 4. Fonction principale
+main <- function() {
+  # Charger le fichier CSV
+  df_marketcap <- load_marketcap_data()
+  
+  # Filtrer les lignes
+  filtered_data <- filter_data(df_marketcap)
+  
+  # Sauvegarder dans un nouveau CSV
+  save_to_csv(filtered_data)
+}
+data=read.csv("marketcap_0_1500.csv")
+# Lancer le script
+main()
+```
+---
+title: "Projet"
+author: "moi"
+date: "2025-02-28"
+output: html_document
+keep_md: true
+---
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+#rmarkdown::render("Projet.Rmd", output_format = "pdf_document")
+#rmarkdown::render("Projet.Rmd", output_format = "html_document")
+```
+
+# Projet : Analyse de données financières
+
+## 1. Introduction
+
+### Présentation du jeu de données : "Market Cap"
+
+Ce jeu de données contient des informations sur les plus grandes entreprises mondiales en termes de capitalisation boursière. Il inclut diverses variables financières et ESG (Environnement, Social et Gouvernance) qui permettent d’analyser leur performance économique et leur engagement en matière de durabilité.
+
+#### Structure du jeu de données
+
+-   **Nombre de variables** : 45\
+-   **Types de variables** :
+    -   **Quantitatives** : marketCap (capitalisation boursière), trailingPE (PER historique), forwardPE (PER futur), priceToBook (prix/valeur comptable), totalEsg (score ESG), etc.\
+    -   **Qualitatives** : sector (secteur d’activité), country (pays), peerGroup (groupe de pairs), esgPerformance (performance ESG), etc. Vous pouvez retrouver la description de chacune des variables dans l’annexe.
+
+#### Problématiques soulevées
+
+1.  **Analyse de la capitalisation boursière**
+    -   Quels sont les secteurs les plus représentés parmi les entreprises ayant la plus grande capitalisation boursière ?\
+    -   Existe-t-il une corrélation entre la capitalisation et d’autres variables financières (PER, price-to-book, etc.) ?
+2.  **Performances ESG et responsabilité sociale**
+    -   Quel est l’impact des scores ESG sur la valorisation des entreprises ?\
+    -   Les entreprises ayant une forte capitalisation boursière ont-elles tendance à avoir de meilleures performances ESG ?
+3.  **Comparaisons sectorielles et géographiques**
+    -   Quels sont les pays qui dominent le classement des entreprises à forte capitalisation ?\
+    -   Comment les secteurs d’activité diffèrent-ils en termes de ratios financiers et d’engagement ESG ?
+4.  **Analyse prédictive et tendances**
+    -   Peut-on prédire la performance future d’une entreprise en fonction de ses indicateurs financiers et ESG ?\
+    -   Existe-t-il des anomalies statistiques qui mériteraient une étude plus approfondie ?
+
+```{r, echo=FALSE, results='hide'}
+# Charger la librairie nécessaire
+library(tidyverse)
+
+# 1. Charger le fichier CSV
+load_marketcap_data <- function() {
+  file_path <- "Morille_Adrien_Malleret_Antoine_yahoo_finance.csv"  # Mets ici le chemin complet si nécessaire
+  df_marketcap <- read.csv(file_path)
+  return(df_marketcap)
+}
+
+# 2. Filtrer les lignes de 0 à 1500
+filter_data <- function(df_marketcap) {
+  filtered_data <- df_marketcap[1:1500, ]
+  return(filtered_data)
+}
+
+# 3. Enregistrer le résultat dans un nouveau fichier CSV
+save_to_csv <- function(filtered_data) {
+  write.csv(filtered_data, "marketcap_0_1500", row.names = FALSE)
+}
+
+# 4. Fonction principale
+
+# Charger le fichier CSV
+df_marketcap <- load_marketcap_data()
+  
+# Filtrer les lignes
+filtered_data <- filter_data(df_marketcap)
+  
+# Sauvegarder dans un nouveau CSV
+save_to_csv(filtered_data)
+
+
+
+```
+
+Netoyage des donées.
+
+```{r, echo=FALSE, results='hide'}
+# Charger la librairie nécessaire
+library(tidyverse)
+
+# 1. Charger le fichier CSV
+file_path <- "marketcap_0_1500.csv"  # Mets ici le chemin complet si nécessaire
+df <- read.csv(file_path)
+
+# Aperçu des premières lignes du fichier chargé
+head(df)
+
+# 2. Supprimer les lignes vides
+# Utilisation de drop_na() pour supprimer toutes les lignes contenant des NA
+donnee <- df %>% drop_na()
+# supprimer les ligne avec des données manquantes
+donnee <- na.omit(df)
+# supprimer les lignes avec des N/A
+donnee <- df[complete.cases(df),]
+donnee[donnee == ""] <- NA
+donnee <- na.omit(donnee)
+
+# Vérifier le nombre de lignes avant et après le nettoyage
+cat("Nombre de lignes avant nettoyage :", nrow(df), "\n")
+cat("Nombre de lignes après nettoyage :", nrow(donnee), "\n")
+
+# 3. Enregistrer le résultat nettoyé dans un nouveau fichier CSV
+write.csv(donnee, "marketcap_cleaned.csv", row.names = FALSE)
+cat(" Fichier 'marketcap_cleaned.csv' sauvegardé avec succès !\n")
+
+# 5 supprimer les colonnes inutiles
+# Définir Name comme nom de ligne et le supprimer du dataset
+rownames(donnee) <- donnee$Name
+donnee$Name <- NULL
+donnee$Symbol <- NULL
+donnee$Rank <- NULL
+donnee$maxAge <- NULL
+donnee$ratingYear <- NULL
+donnee$ratingMonth <- NULL
+
+
+# 5. Afficher les premières lignes du tableau nettoyé
+head(donnee)
+```
+
+Conversion des données en numérique.
+
+```{r, echo=FALSE, results='hide'}
+# Vérifier les types des colonnes
+str(donnee)
+
+# Identifier les colonnes quantitatives à convertir
+quantitative_columns <- c("marketCap", "previousClose", "trailingPE", "forwardPE", 
+                          "priceToBook", "beta", "profitMargins", "enterpriseToRevenue", 
+                          "enterpriseToEbitda", "totalRevenue", "revenuePerShare", 
+                          "revenueGrowth", "grossMargins", "ebitdaMargins", "operatingMargins", 
+                          "returnOnAssets", "returnOnEquity", "debtToEquity", "currentRatio", 
+                          "quickRatio", "totalCash", "totalDebt", "bookValue", 
+                          "fiveYearAvgDividendYield", "payoutRatio", 
+                          "trailingAnnualDividendYield", "trailingAnnualDividendRate", 
+                          "totalEsg", "environmentScore", "socialScore", "governanceScore")
+
+# Convertir ces colonnes en numeric
+donnee[quantitative_columns] <- lapply(donnee[quantitative_columns], function(x) {
+  # Enlever les caractères non numériques comme les symboles monétaires, et les convertir en numeric
+  as.numeric(gsub("[^0-9.-]", "", x))
+})
+
+
+
+# Vérifier les types après conversion
+str(donnee)
+```
+
+
+
+
+
+
+```{r}
+data=donnee
+donnee <- data[!is.na(data$forwardPE),]
+donnee$forwardPE <- as.numeric(as.character(donnee$forwardPE))
+sum(is.na(donnee$forwardPE))
+
+donnee$forwardPE_class <- cut(donnee$forwardPE, 
+                                    breaks = quantile(donnee$forwardPE, probs = c(0, 0.33, 0.66, 1), na.rm = TRUE),
+                                    labels = c("Bas", "Moyen", "Élevé"),
+                                    include.lowest = TRUE)
+#remove the column forwardPE
+donnee <- donnee[,-which(names(donnee) %in% c("forwardPE"))]
+table(donnee$forwardPE_class)
+
+```
+```{r}
+
+# Calculer la taille du jeu de test (20%)
+test_size <- 0.2
+
+# Créer des indices aléatoires pour diviser les données
+indices <- sample(1:nrow(donnee))
+# Sélectionner les indices pour le jeu de test (20% des données)
+test_indices <- indices[1:floor(test_size * nrow(donnee))]
+
+# Sélectionner les données de test et d'entraînement
+data_test <- donnee[test_indices, ]  # Données de test (20%)
+data_train <- donnee[-test_indices, ]  # Données d'entraînement (80%)
+table(data_test$forwardPE_class)
+table(data_train$forwardPE_class)
+
+```
+
+
+
+```{r}  
+library(randomForest)
+
+
+# Supprimer les lignes contenant des valeurs manquantes
+data_train_clean <- na.omit(data_train)
+data_test_clean <- na.omit(data_test)
+
+table(data_test_clean$forwardPE_class)
+table(data_train_clean$forwardPE_class)
+
+rf_model <- randomForest(forwardPE_class ~ ., data = data_train_clean)
+
+
+# Afficher l'importance des variables
+importance <- importance(rf_model)
+importance_df <- data.frame(Variable = rownames(importance), Importance = importance[, 1])
+
+# Trier par importance décroissante
+importance_df <- importance_df %>% arrange(desc(Importance))
+
+# Afficher les 10 variables les plus importantes
+print(importance_df[1:10, ])
+
+plot(rf_model)
+
+```
+
+
+
+
+```{r}
+rf_model <- randomForest(forwardPE_class ~ ., data = data_train_clean, ntree = 100)
+pred=predict(rf_model,newdata=data_test_clean)
+table(pred,data_test_clean$forwardPE_class)
+```
+
+```{r}
+accuracy_RF = mean(pred == data_test_clean$forwardPE_class)
+accuracy_RF
+```
+
+```{r}
+library(pROC)
+pred_RF = predict(rf_model, data_test_clean, type="prob")[,2]
+ROC_RF <- roc(data_test_clean$forwardPE_class, pred_RF)
+ROC_RF$auc 
+```
+
+```{r}
+library(rpart)
+library(rpart.plot)
+set.seed(1)
+arbre=rpart(forwardPE_class~.,data_train_clean,control=rpart.control(minsplit=5,cp=0))
+printcp(arbre)
+
+plotcp(arbre)
+```
+
+Adaboost pour predire priceToBook
+```{r}
+library(gbm)
+data_train_clean$priceToBook <- ifelse(data_train_clean$priceToBook < 1, 0, 1)
+data_test_clean$priceToBook <- ifelse(data_test_clean$priceToBook < 1, 0, 1)
+table(data_train_clean$priceToBook)
+table(data_test_clean$priceToBook)
+
+```
+
+```{r}
+library(DMwR)
+library(gbm)
+# Vérifier les valeurs manquantes
+sum(is.na(data_train_clean))
+
+# Vérifiez le type de la colonne 'priceToBook'
+
+data_train_clean$priceToBook <- factor(data_train_clean$priceToBook, levels = c(0, 1))
+str(data_train_clean$priceToBook)
+# Appliquer SMOTE sur votre ensemble de données d'entraînement
+data_train_smote <- SMOTE(priceToBook ~ ., data_train_clean)
+
+# Vérifier la répartition des classes après SMOTE
+table(data_train_smote$priceToBook)
+
+# Entraîner le modèle Adaboost
+adaboost_model <- gbm(as.numeric(priceToBook)-1 ~ ., data = data_train_smote,distribution = "adaboost")
+adaboost_model
+adaboost_model=gbm(as.numeric(priceToBook)-1 ~., data_train_smote, distribution = "adaboost",cv.folds = 5,shrinkage = 0.01, n.trees = 1000)
+B.opt = gbm.perf(adaboost_model, method="cv")
+
+```
+
+```{r}
+library(pROC)
+pred_adaboost = predict(adaboost_model, newdata=data_test_clean, type = "response", n.trees = B.opt)
+class_adaboost <- 1*(pred_adaboost >1/2)
+table(class_adaboost, data_test_clean$priceToBook)
+accuracy_adaboost = mean(class_adaboost == data_test_clean$priceToBook)
+accuracy_adaboost
+ROC_adaboost <- roc(data_test_clean$priceToBook, pred_adaboost)
+ROC_adaboost$auc
+```
+
+```{r}
+library(glmnet)
+
+# Extraire X (features) et y (cible)
+X_train <- as.matrix(data_train_smote[, -6])  # Supprime la 6ème colonne (priceToBook)
+y_train <- as.factor(data_train_smote[, 6])   # Sélectionne la 6ème colonne
+
+# Entraîner le modèle Lasso (régression logistique pénalisée)
+res_lasso <- glmnet(X_train, y_train, family = 'binomial', alpha = 1)
+
+# Afficher la trajectoire des coefficients en fonction de lambda
+plot(res_lasso, label = TRUE)
+plot(res_lasso, xvar = "lambda", label = TRUE) # en abscisse : log(lambda)
+
+```
+
+Choix de lambda par cross validation 
+```{r}
+cvlasso=cv.glmnet(X_train, y_train, family = "binomial",type.measure="class")
+plot(cvlasso)
+cvlasso$lambda.min
+```
+Prediction 
+```{r,warning=FALSE}
+X_test=as.matrix(data_test_clean[, -6])  # Supprime la 6ème colonne (priceToBook)
+Y_test=as.factor(data_test_clean[, 6])   # Sélectionne la 6ème colonne
+class_logit_lasso=predict(cvlasso, newx = X_test, s = 'lambda.min', type = "class")
+table(class_logit_lasso,Y_test)
+accuracy_logit_lasso = mean(class_logit_lasso == Y_test)
+accuracy_logit_lasso
+```
+
+Courbe ROC
+```{r}
+pred_logit_lasso = predict(cvlasso, newx = X_test, s = 'lambda.min', type = "response")
+ROC_logit_lasso <- roc(Y_test, pred_logit_lasso)
+ROC_logit_lasso$auc
+```
+
+LDA/QDA 
+```{r}
+library(MASS)
+library(pROC)
+
+#prend uniquement les données numériques de data_train_smote
+data_train_lda=data_train_smote[,sapply(data_train_smote, is.numeric)]
+data_train_lda$priceToBook <- as.factor(data_train_smote$priceToBook)
+data_test_lda=data_test_clean[,sapply(data_test_clean, is.numeric)]
+data_test_lda$priceToBook <- as.factor(data_test_clean$priceToBook)
+
+res_lda <- lda(priceToBook~.,data_train_lda)
+res_qda <- qda(priceToBook~.,data_train_lda)
+
+pred_lda <- predict(res_lda, newdata=data_test_lda)$posterior[,2]
+pred_qda <- predict(res_qda, newdata=data_test_lda)$posterior[,2]
+
+table(pred_lda, data_test_lda$priceToBook)
+table(pred_qda, data_test_lda$priceToBook)
+
+accuracy_lda = mean(pred_lda == data_test_lda$priceToBook)
+accuracy_qda = mean(pred_qda == data_test_lda$priceToBook)
+accuracy_lda
+accuracy_qda
+
+ROC_lda <- roc(data_test_lda$priceToBook, pred_lda)
+ROC_lda$auc
+ROC_qda <- roc(data_test_lda$priceToBook, pred_qda)
+ROC_qda$auc
+```
