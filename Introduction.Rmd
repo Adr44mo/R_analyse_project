@@ -1,0 +1,37 @@
+---
+title: "Intoduction"
+author: "moi"
+date: "2025-04-03"
+output: html_document
+---
+
+# Projet : Analyse de données financières
+
+## 1. Introduction
+
+### Présentation du jeu de données : "Market Cap"
+
+Ce jeu de données contient des informations sur les plus grandes entreprises mondiales en termes de capitalisation boursière. Il inclut diverses variables financières et ESG (Environnement, Social et Gouvernance) qui permettent d’analyser leur performance économique et leur engagement en matière de durabilité.
+
+#### Structure du jeu de données
+
+-   **Nombre de variables** : 45\
+-   **Types de variables** :
+    -   **Quantitatives** : marketCap (capitalisation boursière), trailingPE (PER historique), forwardPE (PER futur), priceToBook (prix/valeur comptable), totalEsg (score ESG), etc.\
+    -   **Qualitatives** : sector (secteur d’activité), country (pays), peerGroup (groupe de pairs), esgPerformance (performance ESG), etc. Vous pouvez retrouver la description de chacune des variables dans l’annexe.
+
+#### Problématiques soulevées
+
+1.  **Analyse de la capitalisation boursière**
+    -   Quels sont les secteurs les plus représentés parmi les entreprises ayant la plus grande capitalisation boursière ?\
+    -   Existe-t-il une corrélation entre la capitalisation et d’autres variables financières (PER, price-to-book, etc.) ?
+2.  **Performances ESG et responsabilité sociale**
+    -   Quel est l’impact des scores ESG sur la valorisation des entreprises ?\
+    -   Les entreprises ayant une forte capitalisation boursière ont-elles tendance à avoir de meilleures performances ESG ?
+3.  **Comparaisons sectorielles et géographiques**
+    -   Quels sont les pays qui dominent le classement des entreprises à forte capitalisation ?\
+    -   Comment les secteurs d’activité diffèrent-ils en termes de ratios financiers et d’engagement ESG ?
+4.  **Analyse prédictive et tendances**
+    -   Peut-on prédire la performance future d’une entreprise en fonction de ses indicateurs financiers et ESG ?\
+    -   Existe-t-il des anomalies statistiques qui mériteraient une étude plus approfondie ?
+

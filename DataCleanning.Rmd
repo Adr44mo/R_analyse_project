@@ -1,0 +1,80 @@
+---
+title: "DataCleanning"
+author: "moi"
+date: "2025-04-03"
+output: html_document
+---
+
+```{r, echo=FALSE, results='hide'}
+# Charger la librairie nécessaire
+library(tidyverse)
+
+# Charger les données
+file_path <- "Morille_Adrien_Malleret_Antoine_yahoo_finance.csv"
+df_marketcap <- read.csv(file_path)
+
+# Filtrer les lignes de 0 à 1500
+filtered_data <- df_marketcap[1:1500, ]
+```
+
+Netoyage des donées.
+
+```{r, echo=FALSE, results='hide'}
+
+df <- filtered_data
+
+# Utilisation de drop_na() pour supprimer toutes les lignes contenant des NA
+cleaned_data <- df %>% drop_na()
+# supprimer les ligne avec des données manquantes
+cleaned_data <- na.omit(df)
+# supprimer les lignes avec des N/A
+cleaned_data <- df[complete.cases(df),]
+cleaned_data[cleaned_data == ""] <- NA
+cleaned_data <- na.omit(cleaned_data)
+
+# Vérifier le nombre de lignes avant et après le nettoyage
+cat("Nombre de lignes avant nettoyage :", nrow(df), "\n")
+cat("Nombre de lignes après nettoyage :", nrow(cleaned_data), "\n")
+
+# 5 supprimer les colonnes inutiles
+# Définir Name comme nom de ligne et le supprimer du dataset
+rownames(cleaned_data) <- cleaned_data$Name
+cleaned_data$Name <- NULL
+cleaned_data$Symbol <- NULL
+cleaned_data$Rank <- NULL
+cleaned_data$maxAge <- NULL
+cleaned_data$ratingYear <- NULL
+cleaned_data$ratingMonth <- NULL
+
+# Afficher les premières lignes du tableau nettoyé
+head(cleaned_data)
+```
+
+Conversion des données en numérique.
+
+```{r, echo=FALSE, results='hide'}
+# Vérifier les types des colonnes
+str(cleaned_data)
+
+# Identifier les colonnes quantitatives à convertir
+quantitative_columns <- c("marketCap", "previousClose", "trailingPE", "forwardPE", 
+                          "priceToBook", "beta", "profitMargins", "enterpriseToRevenue", 
+                          "enterpriseToEbitda", "totalRevenue", "revenuePerShare", 
+                          "revenueGrowth", "grossMargins", "ebitdaMargins", "operatingMargins", 
+                          "returnOnAssets", "returnOnEquity", "debtToEquity", "currentRatio", 
+                          "quickRatio", "totalCash", "totalDebt", "bookValue", 
+                          "fiveYearAvgDividendYield", "payoutRatio", 
+                          "trailingAnnualDividendYield", "trailingAnnualDividendRate", 
+                          "totalEsg", "environmentScore", "socialScore", "governanceScore")
+
+# Convertir ces colonnes en numeric
+cleaned_data[quantitative_columns] <- lapply(cleaned_data[quantitative_columns], function(x) {
+  # Enlever les caractères non numériques comme les symboles monétaires, et les convertir en numeric
+  as.numeric(gsub("[^0-9.-]", "", x))
+})
+
+
+
+# Vérifier les types après conversion
+str(cleaned_data)
+```

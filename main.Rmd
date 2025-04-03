@@ -15,10 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r child = "child.Rmd"}
 
 ```
-```{r child = "Int.Rmd"}
+
+```{r child = "Introduction.Rmd"}
 
 ```
 
+```{r child = "DataCleanning.Rmd"}
 
+```
 
 
