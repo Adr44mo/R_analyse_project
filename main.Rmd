@@ -40,6 +40,14 @@ library(cluster) # classification non supervisée
 
 ```
 
+```{r child = "AFP.Rmd"}
+
+```
+
+```{r child = "Classification_supervisée.Rmd"}
+
+```
+
 ```{r child = "Classification_non_supervisée.Rmd"}
 
 ```
