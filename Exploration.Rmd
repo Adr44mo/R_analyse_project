@@ -4,8 +4,10 @@ author: "moi"
 date: "2025-04-03"
 output: html_document
 ---
-
 ## Analyse exploratoire des données
+
+### 0. Répartition des entreprises par pays²
+Un barplot est un bon moyen de visualiser la répartition des entreprises par pays. Cela permet de voir rapidement quels pays ont le plus d'entreprises dans le jeu de données.
 
 ```{r, echo=FALSE}
 # test les différent pays et donnée le nombre d'entreprise par pays
@@ -28,21 +30,47 @@ df %>%
 ```
 
 ### 1. Corrélation entre la Marge Bénéficiaire et le Ratio d'Endettement
+Un scatter plot est pertinent pour analyser la relation entre deux variables financières, comme *profitMargins* et *debtToEquity*.
 
-Un scatter plot est pertinent pour analyser la relation entre deux variables financières, comme *profitMargins* et *debtToEquity*, afin de visualiser s'il existe une corrélation entre la rentabilité et l'endettement.
+```{r, echo=FALSE,warning=FALSE}
+cleaned_data <- cleaned_data %>%
+  mutate(tranche_debt = floor(debtToEquity / 500) * 500) 
 
-```{r, echo=FALSE}
-ggplot(cleaned_data, aes(x = debtToEquity, y = profitMargins)) +
-  geom_point(color = "purple", alpha = 0.6) +
-  labs(title = "Relation entre Marge Bénéficiaire et Ratio d'Endettement",
-       x = "Ratio d'Endettement (Debt to Equity)",
-       y = "Marge Bénéficiaire (%)") +
+# Filtrer pour ne garder que les tranches ≤ 4000
+cleaned_data <- cleaned_data %>% filter(tranche_debt <= 4000)
+
+# Calculer la moyenne de "profitMargins" pour chaque tranche de 500
+moyenne_par_tranche <- cleaned_data %>%
+  group_by(tranche_debt) %>%
+  summarise(moyenne_profit = mean(profitMargins, na.rm = TRUE)) %>%
+  arrange(tranche_debt)  # Trier par tranche croissante
+
+# Affichage graphique
+ggplot(moyenne_par_tranche, aes(x = tranche_debt, y = moyenne_profit)) +
+  geom_line(color = "blue", size = 1) +   # Ligne pour visualiser l'évolution
+  geom_point(color = "red", size = 2) +   # Points pour chaque tranche
+  labs(title = "Moyenne de la Marge Bénéficiaire par Tranche de 500 du Ratio d'Endettement",
+       x = "Ratio d'Endettement (par tranches de 500, max 4000)",
+       y = "Moyenne de la Marge Bénéficiaire (%)") +
   theme_minimal()
 ```
 
 ### 2. Distribution de la Capitalisation Boursière par Secteur
+Un boxplot est un excellent moyen de visualiser la distribution de la capitalisation boursière par secteur, ce qui permet de comparer la taille des entreprises dans différents domaines d'activité. Commençons tout d'abord par compter le nombre d'entreprises par secteur pour voir la répartition.
+```{r, echo=FALSE}
+# Compter le nombre d'entreprises par secteur
+sector_counts <- as.data.frame(table(cleaned_data$sector))
 
-Un boxplot est un excellent moyen de visualiser la distribution de la capitalisation boursière par secteur, ce qui permet de comparer la taille des entreprises dans différents domaines d'activité.
+# Création du graphique
+ggplot(sector_counts, aes(x = reorder(Var1, -Freq), y = Freq, fill = Var1)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Nombre d'entreprises par secteur",
+       x = "Secteur",
+       y = "Nombre d'entreprises") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Rotation des labels pour lisibilité
+  scale_fill_viridis_d() # Palette de couleurs agréable
+```
 
 ```{r, echo=FALSE}
 ggplot(cleaned_data, aes(x = sector, y = marketCap, fill = sector)) +
@@ -55,7 +83,6 @@ ggplot(cleaned_data, aes(x = sector, y = marketCap, fill = sector)) +
 ```
 
 ### 3. Scores ESG par Continent
-
 Un diagramme en violon pourrait être intéressant pour analyser la distribution des scores ESG (*totalEsg*) en fonction des continents. Cela permettrait de visualiser les écarts dans la performance ESG en fonction de la région géographique.
 
 ```{r, echo=FALSE}
@@ -69,7 +96,6 @@ ggplot(cleaned_data, aes(x = Continent, y = totalEsg, fill = Continent)) +
 ```
 
 ### 4. Comparaison de la Rentabilité (ROA vs ROE)
-
 Un graphique en nuage de points est une bonne manière de comparer les deux indicateurs financiers, à savoir le Return on Assets (ROA) et le Return on Equity (ROE), pour chaque entreprise.
 
 ```{r, echo=FALSE}

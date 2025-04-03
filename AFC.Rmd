@@ -5,16 +5,7 @@ date: "2025-04-03"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
-# Charger les bibliothèques nécessaires
-library(FactoMineR)   # Pour l'AFC
-library(factoextra)   # Pour la visualisation
-library(dplyr)        # Pour la manipulation des données
-
 # 🟢 2. Créer le tableau de contingence entre `sector` et `esgPerformance`
 contingence_table <- table(cleaned_data$sector, cleaned_data$esgPerformance)
 
@@ -27,7 +18,9 @@ afc_result <- CA(contingence_table, graph = TRUE)
 fviz_ca_biplot(afc_result, repel = TRUE)
 
 ```
+
 Explications des résultats de l'AFC:
+
 ```{r}
 # 🟢 6. Visualiser les contributions des modalités
 fviz_ca_row(afc_result, col.row = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE) +
