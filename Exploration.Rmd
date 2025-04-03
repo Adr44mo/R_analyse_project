@@ -63,7 +63,7 @@ ggplot(moyenne_par_tranche, aes(x = tranche_debt, y = moyenne_profit)) +
 -   **Ratio \> 3000 - 4000** : La rentabilité devient négative, ce qui suggère que ces entreprises ne parviennent plus à couvrir leurs charges financières. \### 2. Distribution de la Capitalisation Boursière par Secteur Un boxplot est un excellent moyen de visualiser la distribution de la capitalisation boursière par secteur, ce qui permet de comparer la taille des entreprises dans différents domaines d'activité. Commençons tout d'abord par compter le nombre d'entreprises par secteur pour voir la répartition.
 
 
-## 2.Répartition du Nombre d'Entreprises par Secteur et de leutr Capitalisation Boursière
+### 2.Répartition du Nombre d'Entreprises par Secteur et de leutr Capitalisation Boursière
 
 ```{r, echo=FALSE}
 # Compter le nombre d'entreprises par secteur
@@ -79,6 +79,7 @@ ggplot(sector_counts, aes(x = reorder(Var1, -Freq), y = Freq, fill = Var1)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Rotation des labels pour lisibilité
   scale_fill_viridis_d() # Palette de couleurs agréable
 ```
+
 - Industrials et Technology dominent avec le plus grand nombre d'entreprises.
 
 - Consumer Cyclical, Financial Services et Healthcare occupent une position intermédiaire.
@@ -98,10 +99,12 @@ ggplot(cleaned_data, aes(x = Continent, y = totalEsg, fill = Continent)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 **Attention** : Plus le score est élevé, plus l'entreprise impacte négativement l'environnement.
 -   **Asie** : Score ESG le plus élevé, indiquant un impact environnemental
 plus important.
 -   **Europe et Amérique du Nord** : Score ESG le plus bas, indiquant un impact environnemental relativement faible.
+
 ### 4. Comparaison de la Rentabilité (ROA vs ROE)
 
 ```{r, echo=FALSE,warning=FALSE}
