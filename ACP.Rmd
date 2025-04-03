@@ -1,0 +1,103 @@
+---
+title: "ACP"
+author: "moi"
+date: "2025-04-03"
+output: html_document
+---
+
+## ACP : Analyse en Composantes Principales
+
+```{r, echo=FALSE}
+
+# Copier le dataset nettoyé
+clean_data <- cleaned_data
+
+# Assigner les noms d'entreprises aux rownames et supprimer la colonne Name
+rownames(clean_data) <- clean_data$Name
+clean_data$Name <- NULL
+
+# On garde toutes les données sans filtrer sur top_50 cette fois
+
+# On identifie toutes les colonnes quantitatives pour l'ACP
+quantitative_columns <- c("marketCap", "previousClose", "trailingPE", "forwardPE", 
+                          "priceToBook", "beta", "profitMargins", "enterpriseToRevenue", 
+                          "enterpriseToEbitda", "totalRevenue", "revenuePerShare", 
+                          "revenueGrowth", "grossMargins", "ebitdaMargins", "operatingMargins", 
+                          "returnOnAssets", "returnOnEquity", "debtToEquity", "currentRatio", 
+                          "quickRatio", "totalCash", "totalDebt", "bookValue", 
+                          "fiveYearAvgDividendYield", "payoutRatio", 
+                          "trailingAnnualDividendYield", "trailingAnnualDividendRate", 
+                          "totalEsg", "environmentScore", "socialScore", "governanceScore")
+
+# Sélection des variables quantitatives + les variables qualitatives pour habillage
+data_perf <- clean_data[, c(quantitative_columns, "sector", "Index")]
+
+# Effectuer l'ACP avec variables qualitatives en quali.sup
+res_pca <- PCA(data_perf, graph = TRUE, scale.unit = TRUE, ncp = 5, quali.sup = c((length(quantitative_columns) + 1), (length(quantitative_columns) + 2)))
+
+# Afficher les valeurs propres
+print(res_pca$eig)
+```
+
+Analyse en Composantes Principales (ACP) 1️⃣ Variance expliquée par les axes
+
+```{r}
+# Résumé des valeurs propres
+print(res_pca$eig)
+```
+
+Observations :
+
+Dim 1 : environ 10 % de variance expliquée. Dim 2 : +9 %, cumul 19 %. Dim 3 : +8 %, cumul 27 %. Dim 4 : +6.6 %, cumul 33 %. Dim 5 : +6.4 %, cumul 40 %. Conclusion : Les 5 premiers axes expliquent environ 40 % de l’inertie totale.
+
+2️⃣ Contributions des variables par axe
+
+```{r}
+# Contributions des variables
+print(res_pca$var$contrib)
+```
+
+📊 Axe 1 (Dim.1) Variables dominantes :
+
+priceToBook, enterpriseToRevenue, enterpriseToEbitda (≈ 98 %) Interprétation : Axe lié à la valorisation (ratios financiers).
+
+📊 Axe 2 (Dim.2) Variables dominantes :
+
+totalRevenue (48 %) totalCash (55 %) grossMargins, ebitdaMargins, governanceScore Interprétation : Axe de solidité financière et rentabilité.
+
+📊 Axe 3 (Dim.3) Variables dominantes :
+
+totalEsg, socialScore, ebitdaMargins Interprétation : Axe ESG et efficacité opérationnelle.
+
+📊 Axe 4 (Dim.4) Variables dominantes :
+
+currentRatio & quickRatio (\> 63 %) Interprétation : Axe des liquidités (santé à court terme).
+
+📊 Axe 5 (Dim.5) Variables dominantes :
+
+trailingAnnualDividendYield & trailingAnnualDividendRate (\> 97 %) Interprétation : Axe purement lié au dividende.
+
+4️⃣ Graphiques de l'ACP Graphique individus (habillage par Index)
+
+```{r}
+plot(res_pca, habillage = (length(quantitative_columns) + 2), select = "cos2 0.8", choix = "ind")
+```
+
+✅ Conclusion Cette ACP permet de bien visualiser :
+
+L’opposition entre valorisation, marges et politique de dividende. L’impact de l’ESG dans la structure multidimensionnelle. La répartition hétérogène des entreprises selon leur secteur et leur Index. Ce jeu de données est idéal pour une analyse multidimensionnelle incluant des méthodes comme l’ACP (Analyse en Composantes Principales), la régression linéaire et l’ANOVA.
+
+## 2. Importation et prétraitement des données
+
+Voir annex pour plus de détails sur les variables du jeu de données et le code utilisée.
+
+```{r, echo=FALSE}
+#ACP sur l'esg
+data_esg <- cleaned_data[, c("totalEsg", "environmentScore", "socialScore", "governanceScore","esgPerformance","sector")]
+
+res_pca_esg <- PCA(data_esg, graph = T,scale.unit = TRUE, ncp = 5, quali.sup = c(5,6))
+res_pca_esg$eig
+plot(res_pca_esg, habillage = 5, select = "cos2 0.8",choix = c("ind"))
+plot(res_pca_esg, habillage = 6, select = "cos2 0.95",choix = c("ind"))
+
+```

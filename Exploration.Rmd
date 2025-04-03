@@ -1,0 +1,83 @@
+---
+title: "Exploration"
+author: "moi"
+date: "2025-04-03"
+output: html_document
+---
+
+## Analyse exploratoire des données
+
+```{r, echo=FALSE}
+# test les différent pays et donnée le nombre d'entreprise par pays
+df <- cleaned_data
+# Nombre d'entreprises par pays
+df %>%
+  group_by(country) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+
+df %>%
+  group_by(country) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count)) %>%
+  ggplot(aes(x = reorder(country, Count), y = Count, fill = country)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Nombre d'entreprises par pays", x = "Pays", y = "Nombre d'entreprises") +
+  theme_minimal()
+```
+
+### 1. Corrélation entre la Marge Bénéficiaire et le Ratio d'Endettement
+
+Un scatter plot est pertinent pour analyser la relation entre deux variables financières, comme *profitMargins* et *debtToEquity*, afin de visualiser s'il existe une corrélation entre la rentabilité et l'endettement.
+
+```{r, echo=FALSE}
+ggplot(cleaned_data, aes(x = debtToEquity, y = profitMargins)) +
+  geom_point(color = "purple", alpha = 0.6) +
+  labs(title = "Relation entre Marge Bénéficiaire et Ratio d'Endettement",
+       x = "Ratio d'Endettement (Debt to Equity)",
+       y = "Marge Bénéficiaire (%)") +
+  theme_minimal()
+```
+
+### 2. Distribution de la Capitalisation Boursière par Secteur
+
+Un boxplot est un excellent moyen de visualiser la distribution de la capitalisation boursière par secteur, ce qui permet de comparer la taille des entreprises dans différents domaines d'activité.
+
+```{r, echo=FALSE}
+ggplot(cleaned_data, aes(x = sector, y = marketCap, fill = sector)) +
+  geom_boxplot() +
+  labs(title = "Distribution de la Capitalisation Boursière par Secteur",
+       x = "Secteur d'Activité",
+       y = "Capitalisation Boursière (en milliards USD)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 3. Scores ESG par Continent
+
+Un diagramme en violon pourrait être intéressant pour analyser la distribution des scores ESG (*totalEsg*) en fonction des continents. Cela permettrait de visualiser les écarts dans la performance ESG en fonction de la région géographique.
+
+```{r, echo=FALSE}
+ggplot(cleaned_data, aes(x = Continent, y = totalEsg, fill = Continent)) +
+  geom_violin(trim = FALSE) +
+  labs(title = "Distribution des Scores ESG par Continent",
+       x = "Continent",
+       y = "Score ESG Total") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### 4. Comparaison de la Rentabilité (ROA vs ROE)
+
+Un graphique en nuage de points est une bonne manière de comparer les deux indicateurs financiers, à savoir le Return on Assets (ROA) et le Return on Equity (ROE), pour chaque entreprise.
+
+```{r, echo=FALSE}
+ggplot(cleaned_data, aes(x = returnOnAssets, y = returnOnEquity)) +
+  geom_point(color = "blue", alpha = 0.6) +
+  labs(title = "Comparaison de la Rentabilité des Actifs (ROA) et des Fonds Propres (ROE)",
+       x = "Rentabilité des Actifs (ROA)",
+       y = "Rentabilité des Fonds Propres (ROE)") +
+  theme_minimal()
+```
+

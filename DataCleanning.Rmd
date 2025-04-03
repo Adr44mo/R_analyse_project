@@ -6,9 +6,6 @@ output: html_document
 ---
 
 ```{r, echo=FALSE, results='hide'}
-# Charger la librairie nécessaire
-library(tidyverse)
-
 # Charger les données
 file_path <- "Morille_Adrien_Malleret_Antoine_yahoo_finance.csv"
 df_marketcap <- read.csv(file_path)

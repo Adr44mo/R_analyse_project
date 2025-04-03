@@ -10,11 +10,13 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-
-```{r child = "child.Rmd"}
-
+```{r, echo=FALSE}
+#library
+library(tidyverse)
+library(ggplot2)
+library(FactoMineR)  # Pour l'ACP
 ```
+
 
 ```{r child = "Introduction.Rmd"}
 
@@ -24,4 +26,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+```{r child = "Exploration.Rmd"}
 
+```
+
+```{r child = "ACP.Rmd"}
+
+```
+
+```{r child = "Classification_non_supervisée.Rmd"}
+
+```
