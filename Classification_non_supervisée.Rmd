@@ -1,0 +1,159 @@
+---
+title: "Classification_non_supervisée"
+author: "moi"
+date: "2025-04-03"
+output: html_document
+---
+
+# Classification non supervisée
+
+📌 1. Préparation des données On prépare les données en supprimant les variables inutiles et en s’assurant que les variables qualitatives sont bien en facteur.
+
+```{r}
+# Charger les données nettoyées
+data <- cleaned_data
+
+# Suppression des colonnes non utiles (nom, symbole, index, etc.)
+data <- data %>% select(-c(Continent))
+
+# Convertir les variables qualitatives en facteur
+data$sector <- as.factor(data$sector)
+data$country <- as.factor(data$country)
+data$esgPerformance <- as.factor(data$esgPerformance)
+
+# Vérification des NA et nettoyage
+data <- na.omit(data)
+```
+
+📌 2. Analyse Factorielle des Données Mixtes (FAMD) On utilise FAMD (Analyse Factorielle des Données Mixtes) pour gérer variables quantitatives et qualitatives.
+
+```{r}
+# FAMD sur les données
+res_famd <- FAMD(data, graph = TRUE, ncp = 5)
+```
+
+```{r}
+# Cercle des corrélations
+plot(res_famd, choix = "quanti")
+
+# Graphique des individus
+plot(res_famd, choix = "ind")
+
+# changer les dimensions
+plot(res_famd, choix = "ind", axes = c(1,3),cos2 = 0.8)
+```
+
+📌 3. Clustering avec k-means sur les premières composantes On applique k-means pour regrouper les entreprises.
+
+```{r}
+# Afficher la variance expliquée par dimension
+print(res_famd$eig)
+
+# Calculer la variance cumulée
+variance_cumulee <- cumsum(res_famd$eig[, 2])
+print(variance_cumulee)
+
+```
+
+```{r}
+# Sélection des 5 premières dimensions
+coord <- res_famd$ind$coord[, 1:5]
+
+# Choix du nombre de clusters (méthode de l'inertie)
+inertie.intra <- rep(0, 10)
+for (k in 1:20) {
+  kmeans_res <- kmeans(coord, centers = k, nstart = 100)
+  inertie.intra[k] <- kmeans_res$tot.withinss / kmeans_res$totss
+}
+
+# Affichage du graphique pour choisir le bon nombre de clusters
+plot(1:20, inertie.intra, type = "b", xlab = "Nb. de groupes", ylab = "% inertie intra")
+
+# On choisit 3 groupes ici (à ajuster selon le graphique)
+kmeans_result <- kmeans(coord, centers = 3, nstart = 100)
+
+# Ajout des clusters aux données
+data_cluster <- cbind.data.frame(data, cluster = factor(kmeans_result$cluster))
+
+# observer les clusters
+table(data_cluster$cluster)
+
+
+```
+
+📌 4. Classification Hiérarchique (CAH) avec HCPC On applique la Classification Ascendante Hiérarchique (CAH) pour vérifier si les groupes sont cohérents.
+
+```{r}
+# Lancer la CAH sur les résultats de FAMD
+cah_res <- HCPC(res_famd, nb.clust = -1, graph = TRUE)
+```
+
+📌 5. Interprétation des clusters On analyse les groupes obtenus.
+
+```{r}
+table(data_cluster$cluster)
+
+# Moyennes des variables par cluster
+aggregate(data_cluster, by = list(data_cluster$cluster), FUN = mean)
+
+
+```
+
+```{r}
+
+# Contribution des variables aux axes, du plus au moins impactant
+# Boucle sur toutes les dimensions
+for (i in 1:ncol(res_famd$var$contrib)) {
+  cat("\nDimension", i, ":\n")
+  
+  # Trier les contributions des variables pour la dimension i
+  contributions <- sort(res_famd$var$contrib[, i], decreasing = TRUE)
+  
+  # Afficher les 5 premières variables les plus influentes
+  print(head(contributions, 5))
+}
+
+
+```
+
+🔹 Interprétation des dimensions 
+
+1.Dimension 1 (Axe principal - Facteurs financiers)
+
+- Regroupe des variables économiques et financières clés (revenus, dividendes, valeur comptable).
+
+- Représente la solidité financière et la performance économique d’une entreprise.
+
+- Une forte valeur sur cet axe indique une entreprise avec une capitalisation boursière élevée et de bons résultats financiers.
+
+2.Dimension 2 (Facteurs ESG et environnementaux)
+
+- Met en avant les scores ESG (Environnement, Social, Gouvernance) et le secteur d'activité.
+
+- Représente l'engagement des entreprises envers les pratiques durables et responsables.
+
+- Une entreprise avec un score élevé ici est bien notée sur les critères ESG et est dans un secteur où ces aspects sont valorisés.
+
+3.Dimension 3 (Marge et rentabilité sectorielle)
+
+- Regroupe des indicateurs de rentabilité comme l'EBITDA, les marges opérationnelles et le secteur.
+
+- Indique la capacité d’une entreprise à générer des profits par rapport à son secteur.
+
+- Une valeur élevée ici correspond à une entreprise très rentable dans son industrie.
+
+4.Dimension 4 (Retour sur actifs et rendement des investissements)
+
+- Focalise sur le retour sur actifs (ROA), le rendement sur investissements et l’appartenance à un groupe sectoriel.
+
+- Met en évidence les entreprises qui utilisent efficacement leurs ressources pour générer des profits.
+
+- Une valeur forte ici suggère une excellente gestion des actifs et un bon retour sur investissement.
+
+5.Dimension 5 (Santé financière et liquidité)
+
+- Associe le secteur, la liquidité (current ratio, quick ratio) et le pays.
+
+- Capture la capacité d’une entreprise à faire face à ses obligations financières à court terme.
+
+- Une valeur élevée indique une entreprise avec une bonne gestion de sa trésorerie et un faible risque de liquidité.
