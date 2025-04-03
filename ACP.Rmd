@@ -7,7 +7,7 @@ output: html_document
 
 ## ACP : Analyse en Composantes Principales
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,warning=FALSE,echo=False}
 
 # Copier le dataset nettoyé
 clean_data <- cleaned_data
@@ -15,8 +15,6 @@ clean_data <- cleaned_data
 # Assigner les noms d'entreprises aux rownames et supprimer la colonne Name
 rownames(clean_data) <- clean_data$Name
 clean_data$Name <- NULL
-
-# On garde toutes les données sans filtrer sur top_50 cette fois
 
 # On identifie toutes les colonnes quantitatives pour l'ACP
 quantitative_columns <- c("marketCap", "previousClose", "trailingPE", "forwardPE", 
@@ -39,20 +37,18 @@ res_pca <- PCA(data_perf, graph = TRUE, scale.unit = TRUE, ncp = 5, quali.sup = 
 print(res_pca$eig)
 ```
 
-Analyse en Composantes Principales (ACP) 1️⃣ Variance expliquée par les axes
-
-```{r}
-# Résumé des valeurs propres
-print(res_pca$eig)
-```
-
+En faisant une ACP sur toutes nos données quantitatives, on obtient 31 axes principaux. Avec les 15 premiers on atteint 80% de variance expliquée. 
 Observations :
 
-Dim 1 : environ 10 % de variance expliquée. Dim 2 : +9 %, cumul 19 %. Dim 3 : +8 %, cumul 27 %. Dim 4 : +6.6 %, cumul 33 %. Dim 5 : +6.4 %, cumul 40 %. Conclusion : Les 5 premiers axes expliquent environ 40 % de l’inertie totale.
+Si l'on se concentre sur les 5 premiers axes, on atteint 40% de variance expliquée de la fçcons suivante: 
+pour chaque axe les variables les plus contributrices
+- Axe 1 : priceToBook, enterpriseToRevenue, enterpriseToEbitda
+- Axe 2 : totalRevenue, totalCash, grossMargins, ebitdaMargins
+- Axe 3 : totalEsg, socialScore, ebitdaMargins
+- Axe 4 : currentRatio, quickRatio
+- Axe 5 : trailingAnnualDividendYield, trailingAnnualDividendRate
 
-2️⃣ Contributions des variables par axe
-
-```{r}
+```{r , echo=FALSE}
 # Contributions des variables
 print(res_pca$var$contrib)
 ```
