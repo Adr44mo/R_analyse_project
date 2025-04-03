@@ -1,16 +1,8 @@
 ---
-title: "test"
+title: "Annexe"
 author: "moi"
 date: "2025-04-02"
 output: html_document
----
-
----
-title: "Projet"
-author: "moi"
-date: "2025-02-28"
-output: html_document
-keep_md: true
 ---
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}

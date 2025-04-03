@@ -5,8 +5,6 @@ date: "2025-04-03"
 output: html_document
 ---
 
-# Projet : Analyse de données financières
-
 ## 1. Introduction
 
 ### Présentation du jeu de données : "Market Cap"

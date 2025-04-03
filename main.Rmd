@@ -1,10 +1,11 @@
 ---
-title: "Projet_Analyse_de_données"
-author: "moi"
+title: "Projet Analyse de données"
+author: "Malleret Antoine, Morille Adrien"
 date: "2025-04-02"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
+keep_md: true
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 #library
 library(tidyverse)
 library(ggplot2)
