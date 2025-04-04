@@ -7,7 +7,7 @@ output: html_document
 
 ## ACP : Analyse en Composantes Principales
 
-```{r, echo=FALSE,warning=FALSE}
+```{r, echo=FALSE,warning=FALSE, result ='hide'}
 
 # Copier le dataset nettoyé
 clean_data <- cleaned_data
@@ -62,20 +62,55 @@ Si nous nous concentrons sur les 5 premiers axes, ils expliquent à eux seuls 40
 
 
 Avec une telle quantité de données et un grand nombre d’axes, la visualisation des résultats devient complexe. Pour mieux comprendre les structures sous-jacentes, nous allons donc réaliser une ACP ciblée sur les données **ESG**. Cette approche nous permettra d'identifier les principaux facteurs qui influencent spécifiquement les critères environnementaux, sociaux et de gouvernance.
-
-
-
-
+(Les graphes sont en annexe.)
 
 ### ACP sur les données ESG
 
 ```{r, echo=FALSE}
 #ACP sur l'esg
 data_esg <- cleaned_data[, c("totalEsg", "environmentScore", "socialScore", "governanceScore","esgPerformance","sector")]
+# On enleve le nom de l'entreprise pour plus de clarété
+rownames(data_esg) <- NULL
 
-res_pca_esg <- PCA(data_esg, graph = T,scale.unit = TRUE, ncp = 5, quali.sup = c(5,6))
-res_pca_esg$eig
-plot(res_pca_esg, habillage = 5, select = "cos2 0.8",choix = c("ind"))
-plot(res_pca_esg, habillage = 6, select = "cos2 0.95",choix = c("ind"))
+res_pca_esg <- PCA(data_esg, graph = F,scale.unit = TRUE, ncp = 5, quali.sup = c(5,6))
+
+# Graphique des vaiables
+plot(res_pca_esg, choix = "var", axes = c(1, 2))
+plot(res_pca_esg, choix = "var", axes = c(1, 3))
+
+
+plot(res_pca_esg, habillage = 5, select = "cos2 0.99",choix = c("ind"))
+plot(res_pca_esg, habillage = 6, select = "cos2 0.99",choix = c("ind"))
 
 ```
+
+```{r}
+# Afficher les valeurs propres de l'ACP sur les données ESG
+res_pca_esg$eig
+# Afficher les contributions des variables de l'ACP sur les données ESG
+print(res_pca_esg$var$contrib)
+```
+Dans cette analyse, plus un score ESG est élevé, plus l’entreprise a un impact négatif sur l’environnement, la société ou sa gouvernance. L’ACP nous permet d’identifier les principaux axes qui structurent ces données et de mieux comprendre comment les entreprises se différencient en fonction de leurs scores ESG.
+
+**Analyse des axes principaux**
+L’ACP révèle que trois axes principaux expliquent presque 100% de la variance des données, ce qui signifie qu’ils capturent l’essentiel des différences entre les entreprises en matière d’impact ESG.
+
+Premier axe : un indicateur global de l’impact ESG
+Le premier axe est principalement influencé par le score ESG total et le score social. Plus une entreprise a une valeur élevée sur cet axe, plus elle accumule des impacts négatifs sur l’ensemble des critères ESG, en particulier sur le plan social. Ce premier axe permet donc de classer globalement les entreprises selon leur empreinte ESG globale.
+
+Deuxième axe : opposition Environnement / Gouvernance
+Le second axe met en évidence une opposition entre le score environnemental et le score de gouvernance. Cela signifie que certaines entreprises ont un impact plus marqué sur l’environnement (pollution, émissions carbone, mauvaise gestion des ressources), tandis que d’autres se distinguent par des faiblesses en gouvernance (manque de transparence, risques liés à la gestion interne). Cet axe souligne donc deux profils distincts : les entreprises aux impacts négatifs environnementaux forts et celles aux impacts négatifs liés à leur gouvernance.
+
+Troisième axe : différenciation entre Social et Gouvernance
+Le troisième axe met en évidence une différence entre les entreprises ayant un impact négatif principalement sur le plan social (mauvaise gestion des employés, manque d’inclusion, impact sociétal négatif) et celles qui présentent des lacunes en gouvernance. Il permet d’affiner l’analyse en montrant quelles entreprises ont des problèmes davantage liés à la gestion humaine et sociale, et lesquelles ont des défauts structurels de gouvernance.
+
+**Conclusion et interprétation des résultats**
+Cette ACP met en lumière trois grandes tendances :
+
+Le premier axe classe les entreprises selon leur impact ESG global.
+
+Le second axe différencie les entreprises ayant un impact négatif sur l’environnement ou sur la gouvernance.
+
+Le troisième axe affine l’analyse en opposant l’impact social et l’impact de gouvernance.
+
+Ces résultats montrent que l’ESG ne se limite pas à un seul critère et que les entreprises peuvent avoir des impacts négatifs dans des domaines différents. Cette segmentation permet d’identifier les entreprises ayant les pires pratiques globales, mais aussi celles qui ont des faiblesses spécifiques, que ce soit en matière d’environnement, de gouvernance ou de responsabilité sociale.
