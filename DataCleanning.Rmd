@@ -14,7 +14,6 @@ df_marketcap <- read.csv(file_path)
 filtered_data <- df_marketcap[1:1500, ]
 ```
 
-Netoyage des donées.
 
 ```{r, echo=FALSE, results='hide'}
 
@@ -46,8 +45,6 @@ cleaned_data$ratingMonth <- NULL
 # Afficher les premières lignes du tableau nettoyé
 head(cleaned_data)
 ```
-
-Conversion des données en numérique.
 
 ```{r, echo=FALSE, results='hide'}
 # Vérifier les types des colonnes

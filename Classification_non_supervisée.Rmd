@@ -11,10 +11,12 @@ output: html_document
 
 ```{r}
 # Charger les données nettoyées
+data = 0
+print(data)
 data <- cleaned_data
 
 # Suppression des colonnes non utiles (nom, symbole, index, etc.)
-data <- data %>% select(-c(Continent))
+data <- data[, !(names(data) %in% c("Continent", "Name", "Symbol", "Index"))]
 
 # Convertir les variables qualitatives en facteur
 data$sector <- as.factor(data$sector)

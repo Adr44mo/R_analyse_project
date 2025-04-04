@@ -7,7 +7,7 @@ output: html_document
 
 ## ACP : Analyse en Composantes Principales
 
-```{r, echo=FALSE,warning=FALSE,echo=False}
+```{r, echo=FALSE,warning=FALSE}
 
 # Copier le dataset nettoyé
 clean_data <- cleaned_data
@@ -35,57 +35,39 @@ res_pca <- PCA(data_perf, graph = TRUE, scale.unit = TRUE, ncp = 5, quali.sup = 
 
 # Afficher les valeurs propres
 print(res_pca$eig)
-```
 
-En faisant une ACP sur toutes nos données quantitatives, on obtient 31 axes principaux. Avec les 15 premiers on atteint 80% de variance expliquée. 
-Observations :
-
-Si l'on se concentre sur les 5 premiers axes, on atteint 40% de variance expliquée de la fçcons suivante: 
-pour chaque axe les variables les plus contributrices
-- Axe 1 : priceToBook, enterpriseToRevenue, enterpriseToEbitda
-- Axe 2 : totalRevenue, totalCash, grossMargins, ebitdaMargins
-- Axe 3 : totalEsg, socialScore, ebitdaMargins
-- Axe 4 : currentRatio, quickRatio
-- Axe 5 : trailingAnnualDividendYield, trailingAnnualDividendRate
-
-```{r , echo=FALSE}
 # Contributions des variables
 print(res_pca$var$contrib)
-```
 
-📊 Axe 1 (Dim.1) Variables dominantes :
-
-priceToBook, enterpriseToRevenue, enterpriseToEbitda (≈ 98 %) Interprétation : Axe lié à la valorisation (ratios financiers).
-
-📊 Axe 2 (Dim.2) Variables dominantes :
-
-totalRevenue (48 %) totalCash (55 %) grossMargins, ebitdaMargins, governanceScore Interprétation : Axe de solidité financière et rentabilité.
-
-📊 Axe 3 (Dim.3) Variables dominantes :
-
-totalEsg, socialScore, ebitdaMargins Interprétation : Axe ESG et efficacité opérationnelle.
-
-📊 Axe 4 (Dim.4) Variables dominantes :
-
-currentRatio & quickRatio (\> 63 %) Interprétation : Axe des liquidités (santé à court terme).
-
-📊 Axe 5 (Dim.5) Variables dominantes :
-
-trailingAnnualDividendYield & trailingAnnualDividendRate (\> 97 %) Interprétation : Axe purement lié au dividende.
-
-4️⃣ Graphiques de l'ACP Graphique individus (habillage par Index)
-
-```{r}
 plot(res_pca, habillage = (length(quantitative_columns) + 2), select = "cos2 0.8", choix = "ind")
+
 ```
 
-✅ Conclusion Cette ACP permet de bien visualiser :
+En appliquant une **Analyse en Composantes Principales** (ACP) sur l’ensemble de nos données quantitatives, nous obtenons **31 axes** principaux. Parmi eux, les 15 premiers axes permettent d'expliquer 80 % de la variance totale.
 
-L’opposition entre valorisation, marges et politique de dividende. L’impact de l’ESG dans la structure multidimensionnelle. La répartition hétérogène des entreprises selon leur secteur et leur Index. Ce jeu de données est idéal pour une analyse multidimensionnelle incluant des méthodes comme l’ACP (Analyse en Composantes Principales), la régression linéaire et l’ANOVA.
+**Observations**
+Si nous nous concentrons sur les 5 premiers axes, ils expliquent à eux seuls 40 % de la variance, répartie de la manière suivante :
 
-## 2. Importation et prétraitement des données
+- Axe 1 : *priceToBook, enterpriseToRevenue, enterpriseToEbitda*
 
-Voir annex pour plus de détails sur les variables du jeu de données et le code utilisée.
+- Axe 2 : *totalRevenue, totalCash, grossMargins, ebitdaMargins*
+
+- Axe 3 : *totalEsg, socialScore, ebitdaMargins*
+
+- Axe 4 : *currentRatio, quickRatio*
+
+- Axe 5 : *trailingAnnualDividendYield, trailingAnnualDividendRate*
+
+
+
+
+Avec une telle quantité de données et un grand nombre d’axes, la visualisation des résultats devient complexe. Pour mieux comprendre les structures sous-jacentes, nous allons donc réaliser une ACP ciblée sur les données **ESG**. Cette approche nous permettra d'identifier les principaux facteurs qui influencent spécifiquement les critères environnementaux, sociaux et de gouvernance.
+
+
+
+
+
+### ACP sur les données ESG
 
 ```{r, echo=FALSE}
 #ACP sur l'esg
