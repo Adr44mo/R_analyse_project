@@ -12,6 +12,7 @@ keep_md: true
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #system("git push origin main")
+#system("git pull origin main")
 ```
 
 
@@ -51,9 +52,9 @@ library(dplyr)        # Pour la manipulation des données
 
 ```
 
-#```{r child = "Classification_supervisée.Rmd"}
+```{r child = "Classification_supervisée.Rmd"}
 
-#```
+```
 
 ```{r child = "Classification_non_supervisée.Rmd"}
 
