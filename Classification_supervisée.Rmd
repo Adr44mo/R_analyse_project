@@ -4,9 +4,11 @@ author: ""
 date: "2025-04-03"
 output: html_document
 ---
+
 ## Classification suppervisée
 
-```{r}
+```{r,warning=FALSE,echo=FALSE}
+set.seed(1)
 data=cleaned_data
 donnee <- data[!is.na(data$forwardPE),]
 donnee$forwardPE <- as.numeric(as.character(donnee$forwardPE))
@@ -22,7 +24,7 @@ table(donnee$forwardPE_class)
 
 ```
 
-```{r}
+```{r,warning=FALSE,echo=FALSE}
 
 # Calculer la taille du jeu de test (20%)
 test_size <- 0.2
@@ -48,7 +50,10 @@ table(data_train_clean$forwardPE_class)
 ```
 
 ### Prédiction de la variable forwardPE avec Random Forest
-```{r}
+
+La variable forwardPE (Forward Price-to-Earnings) est un ratio financier qui mesure le rapport entre le prix actuel de l'action et les bénéfices futurs estimés d'une entreprise.C'est donc une variable interssante à prédire. Pour se faire, nous avons converti forwardPE en forwardPE_class prenant des valeurs qualitatives ("élevé"(33%),"moyen"(33%),bas"(33%)) et nous avons découpé les données aléatoirement en données d'entrainement (80%) et données de test (20%) et nous allons effectuer une Random Forest qui s'applique bien dans notre cas car pour prédire forwardPE_class avec nos données mixtes (qualitatives et quantitatives). De part la construction de forwardPE_class nous avons aussi la certitude que nos données sont bien réparties dans les classes.
+
+```{r,warning=FALSE,echo=FALSE}
 library(randomForest)
 
 rf_model <- randomForest(forwardPE_class ~ ., data = data_train_clean)
@@ -67,33 +72,31 @@ print(importance_df[1:10, ])
 plot(rf_model)
 
 ```
-Analyse du graphe et de l'importances 
 
+On remarque que les erreurs sont constantes pour toutes les classes à partir d'environ 100 arbres dans notre random forest. On choisit de prendre le nombre d'abres égal à 100.
 
-```{r}
+Analyse du graphe et de l'importances
+
+```{r,warning=FALSE,echo=FALSE,message=FALSE}
 rf_model <- randomForest(forwardPE_class ~ ., data = data_train_clean, ntree = 100)
 pred=predict(rf_model,newdata=data_test_clean)
 table(pred,data_test_clean$forwardPE_class)
-```
-
-```{r}
-accuracy_RF = mean(pred == data_test_clean$forwardPE_class)
-accuracy_RF
-```
-
-```{r}
 library(pROC)
 pred_RF = predict(rf_model, data_test_clean, type="prob")[,2]
 ROC_RF <- roc(data_test_clean$forwardPE_class, pred_RF)
 ROC_RF$auc 
+accuracy_RF = mean(pred == data_test_clean$forwardPE_class)
+print(paste("accuracy =", accuracy_RF))
 ```
-table de confusion + accuracy
- + courbe ROC 
+
+Nous remarquons pour le choix de 100 arbres, une matrice de confusion avec des erreurs répartie de manière homogène entre les classes. Nous avons aussi une précisions de 76% cela veut dire que 76% de nos individus sont classés dans la bonne classe. Nous avons une aire sous la courbe ROC de 0,87 se qui signifie que le taux de "vrais positifs" est de 87% et le taux de "faux positifs" est de 20%. Cela signifie que notre modèle est assez bon pour prédire la classe de forwardPE_class.
+
 
 ### Prédiction de la variable forwardPE avec CART (Classification and Regression Trees)
 
-trop long
-```{r}
+Nous avons essayer d'utiliser une autre méthode pour la prédiction de forwardPE_class, la méthode CART. Cependant, l'éxécution du code n'arrivait jamais à bout, nous avons donc abandonner cette méthode mais nous avons mis le code en annexe.
+
+```{r,warning=FALSE,echo=FALSE}
 #library(rpart)
 #library(rpart.plot)
 #set.seed(1)
@@ -103,11 +106,12 @@ trop long
 #plotcp(arbre)
 ```
 
+### Prédiction de la variable priceToBook
 
-## Prédiction de la variable priceToBook
+Nous allons maintenant prédire la variable priceToBook qui est un ratio financier qui mesure le rapport de son prix de marché (valeur de marché) sur la valeur comptable d'une entreprise (valeur réelle). C'est un indicateur important permettant de déceler si une entreprise et sous ou sur évaluée, en particulier, un priceToBook inférieur à 1 indique que l'entreprise est sous-évaluée. Nous allons donc essayer de prédire si une entreprise est sous-évaluée (priceToBook=0) ou surévaluée (priceToBook=1). De ce fait, nous modifions la variable priceToBook de façon à ce que si le ratio est strictement inférieur à 1 alors nous mettons la valeur à zéro et si elle est supérieur à 1 nous mettons 1. Ensuite, nous convertissons cette ligne en facteurs. Nous allons éffectuer un maximum de méthodes de prédictions et nous finirons par leur comparaisons afin de déterminer laquelle est la mieux adaptée.
 
-```{r}
-
+```{r,warning=FALSE,echo=FALSE}
+library(DMwR)
 library(gbm)
 # préparation des données
 
@@ -115,12 +119,14 @@ data_priceToBook <- data[!is.na(data$priceToBook),]
 
 data_priceToBook$priceToBook  = ifelse(data_priceToBook$priceToBook < 1, 0, 1)
 
+print('table de priceToBook')
+table(data_priceToBook$priceToBook)
+
 data_priceToBook$priceToBook <- as.numeric(as.character(data_priceToBook$priceToBook))
 
 #On garde que les data quantitatives
 data_priceToBook <- data_priceToBook[,sapply(data_priceToBook, is.numeric)]
 
-sum(is.na(data_priceToBook$priceToBook))
 data_priceToBook$priceToBook <- as.factor(data_priceToBook$priceToBook)
 #----------------------------------------
   # Calculer la taille du jeu de test (20%)
@@ -153,20 +159,21 @@ data_train_adaboost <- data_train_priceToBook_smote
 data_test_adaboost <- data_test_priceToBook
 
 
-
+print('table de nos données d\'entrainement après rééchantillonages')
 table(data_train_adaboost$priceToBook)
-table(data_test_adaboost$priceToBook)
 
 ```
 
+Nous remarquons que nos données initiales ne sont pas bien réparties, beaucoup d'individus sont dans la classe 1 et peu dans la classe 0, nous avons donc utilisée une méthode de rééchantillonage SMOTE afin de rééquilibrer le jeu de données d'entraineemnt.
 
-## Prédiction de la variable priceToBook avec Adaboost
+### Prédiction de la variable priceToBook avec Adaboost
 
+Nous allons maintenant prédire la variable priceToBook avec la méthode Adaboost. Nous avons conservé uniquement les données quantitatives.
 
-```{r}
+```{r,warning=FALSE,echo=FALSE}
 library(DMwR)
 library(gbm)
-
+set.seed(1)
 # Entraîner le modèle Adaboost
 adaboost_model <- gbm(as.numeric(priceToBook)-1 ~ ., data = data_train_adaboost,distribution = "adaboost")
 adaboost_model
@@ -175,17 +182,21 @@ B.opt = gbm.perf(adaboost_model, method="cv")
 
 ```
 
-```{r}
+En affichant l'erreur de validation croisée, nous obtenons un nombre d'arbres optimal que nous pouvons maintenant utiliser pour la prédiction 
+
+```{r,warning=FALSE,echo=FALSE,message=FALSE}
 library(pROC)
 pred_adaboost = predict(adaboost_model, newdata=data_test_adaboost, type = "response", n.trees = B.opt)
 class_adaboost <- 1*(pred_adaboost >1/2)
 table(class_adaboost, data_test_adaboost$priceToBook)
 accuracy_adaboost = mean(class_adaboost == data_test_adaboost$priceToBook)
-accuracy_adaboost
+print(paste("accuracy =", accuracy_adaboost))
 ROC_adaboost <- roc(data_test_adaboost$priceToBook, pred_adaboost)
 ROC_adaboost$auc
 ```
+Nous remarquons que la matrice de confusion est bien répartie entre les classes et que nous avons une précision de 88% ainsi qu'une très bonne aire sous la courbe ROC de 0,93 ce qui semble être de bons résultats.
 
+Nous allons mainteant effectuer une régression logistique avec Lasso.
 ```{r}
 library(glmnet)
 
@@ -206,7 +217,7 @@ plot(res_lasso, xvar = "lambda", label = TRUE) # en abscisse : log(lambda)
 
 ```
 
-Choix de lambda par cross validation
+Nous allons choisir lambda par cross validation 
 
 ```{r}
 cvlasso=cv.glmnet(X_train, y_train, family = "binomial",type.measure="class")
@@ -214,27 +225,23 @@ plot(cvlasso)
 cvlasso$lambda.min
 ```
 
-Prediction
+Nous allons maintenant choisir le lambda optimal et faire la prédiction sur le jeu de test.
 
-```{r,warning=FALSE}
+```{r,warning=FALSE,message=FALSE}
 
 class_logit_lasso=predict(cvlasso, newx = X_test, s = 'lambda.min', type = "class")
 table(class_logit_lasso,Y_test)
 accuracy_logit_lasso = mean(class_logit_lasso == Y_test)
 accuracy_logit_lasso
-```
-
-Courbe ROC
-
-```{r}
 pred_logit_lasso = predict(cvlasso, newx = X_test, s = 'lambda.min', type = "response")
 ROC_logit_lasso <- roc(Y_test, pred_logit_lasso)
 ROC_logit_lasso$auc
 ```
+Nous avons une matrice de confusion bien répartie entre les classes et une précision de 88% ainsi qu'une aire sous la courbe ROC de 0,83 ce qui est relativement bon
 
-LDA/QDA
+Nous allons mainteant faire une LDA et une QDA. A priori, nous n'avons pas d'information sur l'homoscédasticité de nos données, nous allons donc faire les deux méthodes et les comparer pour voir à posteriori si cela est pertinent.
 
-```{r}
+```{r,warning=FALSE,message=FALSE}
 # Charger les bibliothèques
 library(MASS)
 library(pROC)
@@ -272,8 +279,13 @@ print(ROC_lda$auc)
 print(ROC_qda$auc)
 
 ```
-Random Forest
-```{r}
+
+Nous remarquons des résultats étonnant, malgré des précisions proches, l'air sous la courbe ROC de la QDA n'est que de 0,52 contre 0,85 pour celle de la lda.
+
+Nous allons maintenant effectuer une Random Forest
+
+```{r,warning=FALSE,message=FALSE}
+set.seed(1)
 library(randomForest)
 rf_model_priceToBook <- randomForest(priceToBook ~ ., data = data_train_priceToBook_smote, ntree = 100)
 pred_rf_priceToBook <- predict(rf_model_priceToBook, newdata = data_test_priceToBook)
@@ -284,14 +296,16 @@ pred_rf_priceToBook_prob <- predict(rf_model_priceToBook, newdata = data_test_pr
 ROC_rf_priceToBook <- roc(data_test_priceToBook$priceToBook, pred_rf_priceToBook_prob)
 ROC_rf_priceToBook$auc
 ```
-Comparaison des modèles
+Nous avons une matrice de confusion bien répartie entre les classes et une précision de 95% ainsi qu'une aire sous la courbe ROC de 0,95. Ce sont des excellent résultats.
+
+Enfin, nous allons comparer tout nos modèles et conclure.
 
 ```{r}
 result=matrix(NA, ncol=5, nrow=2)
 rownames(result)=c('accuracy', 'AUC')
 colnames(result)=c('lda', 'qda', 'RF', "adaboost", 'logit_lasso')
 result[1,]= c(accuracy_lda, accuracy_qda, accuracy_rf_priceToBook,accuracy_adaboost, accuracy_logit_lasso)
-result[2,]=c(ROC_lda$auc, ROC_qda$auc, ROC_RF$auc, ROC_adaboost$auc, ROC_logit_lasso$auc)
+result[2,]=c(ROC_lda$auc, ROC_qda$auc, ROC_rf_priceToBook$auc, ROC_adaboost$auc, ROC_logit_lasso$auc)
 
 result
 
@@ -303,9 +317,9 @@ result
 ```{r}
 plot(ROC_lda, xlim=c(1,0),print.auc=TRUE,print.auc.y=0.5, col=1, lwd=2, main="Courbes ROC")
 plot(ROC_qda, add=TRUE, col=2,print.auc=TRUE,print.auc.y=0.4, lwd=2, main="Courbes ROC")
-plot(ROC_RF, add=TRUE, col=3,print.auc=TRUE,print.auc.y=0.3, lwd=2, main="Courbes ROC")
+plot(ROC_rf_priceToBook, add=TRUE, col=3,print.auc=TRUE,print.auc.y=0.3, lwd=2, main="Courbes ROC")
 plot(ROC_adaboost, add=TRUE, col=4,print.auc=TRUE,print.auc.y=0.2, lwd=2, main="Courbes ROC")
 plot(ROC_logit_lasso, add=TRUE, col=5,print.auc=TRUE,print.auc.y=0.1, lwd=2, main="Courbes ROC")
 legend('bottomright', col=1:5, paste(c('lda', 'qda', 'RF', "ada", 'logit_lasso')), lwd=1)
 ```
-
+Nous observons ainsi que la méthode de Random forest est la meilleure que cela soit en terme d'aire sous la bourbe ROC ou de précisions. Cependant, il faudrait faire plus de test pour chacune des méthode et faire une moyenne pour obtenir veritablement une conclusion définitive. 
