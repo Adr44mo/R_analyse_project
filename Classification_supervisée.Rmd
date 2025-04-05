@@ -7,7 +7,7 @@ output: html_document
 
 ## Classification suppervisée
 
-```{r,warning=FALSE,echo=FALSE}
+```{r,warning=FALSE,echo=FALSE,message=FALSE,results='hide'}
 set.seed(1)
 data=cleaned_data
 donnee <- data[!is.na(data$forwardPE),]
@@ -24,7 +24,7 @@ table(donnee$forwardPE_class)
 
 ```
 
-```{r,warning=FALSE,echo=FALSE}
+```{r,warning=FALSE,echo=FALSE,message=FALSE,results='hide'}
 
 # Calculer la taille du jeu de test (20%)
 test_size <- 0.2
@@ -53,7 +53,7 @@ table(data_train_clean$forwardPE_class)
 
 La variable forwardPE (Forward Price-to-Earnings) est un ratio financier qui mesure le rapport entre le prix actuel de l'action et les bénéfices futurs estimés d'une entreprise.C'est donc une variable interssante à prédire. Pour se faire, nous avons converti forwardPE en forwardPE_class prenant des valeurs qualitatives ("élevé"(33%),"moyen"(33%),bas"(33%)) et nous avons découpé les données aléatoirement en données d'entrainement (80%) et données de test (20%) et nous allons effectuer une Random Forest qui s'applique bien dans notre cas car pour prédire forwardPE_class avec nos données mixtes (qualitatives et quantitatives). De part la construction de forwardPE_class nous avons aussi la certitude que nos données sont bien réparties dans les classes.
 
-```{r,warning=FALSE,echo=FALSE}
+```{r,warning=FALSE,echo=FALSE,message=FALSE,results='hide'}
 library(randomForest)
 
 rf_model <- randomForest(forwardPE_class ~ ., data = data_train_clean)
@@ -96,7 +96,7 @@ Nous remarquons pour le choix de 100 arbres, une matrice de confusion avec des e
 
 Nous avons essayer d'utiliser une autre méthode pour la prédiction de forwardPE_class, la méthode CART. Cependant, l'éxécution du code n'arrivait jamais à bout, nous avons donc abandonner cette méthode mais nous avons mis le code en annexe.
 
-```{r,warning=FALSE,echo=FALSE}
+```{r,warning=FALSE,echo=FALSE,message=FALSE,results='hide'}
 #library(rpart)
 #library(rpart.plot)
 #set.seed(1)
@@ -111,8 +111,6 @@ Nous avons essayer d'utiliser une autre méthode pour la prédiction de forwardP
 Nous allons maintenant prédire la variable priceToBook qui est un ratio financier qui mesure le rapport de son prix de marché (valeur de marché) sur la valeur comptable d'une entreprise (valeur réelle). C'est un indicateur important permettant de déceler si une entreprise et sous ou sur évaluée, en particulier, un priceToBook inférieur à 1 indique que l'entreprise est sous-évaluée. Nous allons donc essayer de prédire si une entreprise est sous-évaluée (priceToBook=0) ou surévaluée (priceToBook=1). De ce fait, nous modifions la variable priceToBook de façon à ce que si le ratio est strictement inférieur à 1 alors nous mettons la valeur à zéro et si elle est supérieur à 1 nous mettons 1. Ensuite, nous convertissons cette ligne en facteurs. Nous allons éffectuer un maximum de méthodes de prédictions et nous finirons par leur comparaisons afin de déterminer laquelle est la mieux adaptée.
 
 ```{r,warning=FALSE,echo=FALSE}
-library(DMwR)
-library(gbm)
 # préparation des données
 
 data_priceToBook <- data[!is.na(data$priceToBook),]
@@ -171,8 +169,6 @@ Nous remarquons que nos données initiales ne sont pas bien réparties, beaucoup
 Nous allons maintenant prédire la variable priceToBook avec la méthode Adaboost. Nous avons conservé uniquement les données quantitatives.
 
 ```{r,warning=FALSE,echo=FALSE}
-library(DMwR)
-library(gbm)
 set.seed(1)
 # Entraîner le modèle Adaboost
 adaboost_model <- gbm(as.numeric(priceToBook)-1 ~ ., data = data_train_adaboost,distribution = "adaboost")
@@ -185,7 +181,7 @@ B.opt = gbm.perf(adaboost_model, method="cv")
 En affichant l'erreur de validation croisée, nous obtenons un nombre d'arbres optimal que nous pouvons maintenant utiliser pour la prédiction 
 
 ```{r,warning=FALSE,echo=FALSE,message=FALSE}
-library(pROC)
+
 pred_adaboost = predict(adaboost_model, newdata=data_test_adaboost, type = "response", n.trees = B.opt)
 class_adaboost <- 1*(pred_adaboost >1/2)
 table(class_adaboost, data_test_adaboost$priceToBook)
@@ -196,10 +192,10 @@ ROC_adaboost$auc
 ```
 Nous remarquons que la matrice de confusion est bien répartie entre les classes et que nous avons une précision de 88% ainsi qu'une très bonne aire sous la courbe ROC de 0,93 ce qui semble être de bons résultats.
 
-Nous allons mainteant effectuer une régression logistique avec Lasso.
-```{r}
-library(glmnet)
+### Prédiction de la variable priceToBook avec Lasso
 
+Nous allons mainteant effectuer une régression logistique avec Lasso.
+```{r,echo=FALSE,warning=FALSE,message=FALSE}
 # Extraire X (features) et y (cible)
 
 X_train <- as.matrix(data_train_priceToBook_smote[, -5])  # Supprime la 5ème colonne (priceToBook)
@@ -219,7 +215,7 @@ plot(res_lasso, xvar = "lambda", label = TRUE) # en abscisse : log(lambda)
 
 Nous allons choisir lambda par cross validation 
 
-```{r}
+```{r,echo=FALSE,warning=FALSE,message=FALSE,results='hide'}
 cvlasso=cv.glmnet(X_train, y_train, family = "binomial",type.measure="class")
 plot(cvlasso)
 cvlasso$lambda.min
@@ -239,13 +235,12 @@ ROC_logit_lasso$auc
 ```
 Nous avons une matrice de confusion bien répartie entre les classes et une précision de 88% ainsi qu'une aire sous la courbe ROC de 0,83 ce qui est relativement bon
 
+
+### Prédiction de la variable priceToBook avec LDA et QDA
+
 Nous allons mainteant faire une LDA et une QDA. A priori, nous n'avons pas d'information sur l'homoscédasticité de nos données, nous allons donc faire les deux méthodes et les comparer pour voir à posteriori si cela est pertinent.
 
 ```{r,warning=FALSE,message=FALSE}
-# Charger les bibliothèques
-library(MASS)
-library(pROC)
-
 # Entraîner LDA et QDA
 res_lda <- lda(priceToBook ~ ., data_train_priceToBook_smote)
 res_qda <- qda(priceToBook ~ ., data_train_priceToBook_smote)
@@ -282,8 +277,10 @@ print(ROC_qda$auc)
 
 Nous remarquons des résultats étonnant, malgré des précisions proches, l'air sous la courbe ROC de la QDA n'est que de 0,52 contre 0,85 pour celle de la lda.
 
-Nous allons maintenant effectuer une Random Forest
 
+### Prédiction de la variable priceToBook avec Random Forest
+
+Nous allons maintenant effectuer une Random Forest
 ```{r,warning=FALSE,message=FALSE}
 set.seed(1)
 library(randomForest)
@@ -298,6 +295,8 @@ ROC_rf_priceToBook$auc
 ```
 Nous avons une matrice de confusion bien répartie entre les classes et une précision de 95% ainsi qu'une aire sous la courbe ROC de 0,95. Ce sont des excellent résultats.
 
+
+### Comparaison des modèles et conclusion
 Enfin, nous allons comparer tout nos modèles et conclure.
 
 ```{r}

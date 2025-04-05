@@ -9,7 +9,7 @@ output: html_document
 
 ### Présentation du jeu de données : "Market Cap"
 
-Ce jeu de données contient des informations sur les plus grandes entreprises mondiales en termes de capitalisation boursière. Il inclut diverses variables financières et ESG (Environnement, Social et Gouvernance) qui permettent d’analyser leur performance économique et leur engagement en matière de durabilité.
+Ce jeu de données contient des informations sur les plus grandes entreprises mondiales en termes de capitalisation boursière. Il inclut diverses variables financières et ESG (Environnement, Social et Gouvernance) qui permettent d’analyser leur performance économique et leur engagement en matière de durabilité. Nous avons réaliser une analyse éxploratoire des données pour mieux comprendre les relations entre ces variables que vous pouvez retrouver en annexe.
 
 #### Structure du jeu de données
 
@@ -20,16 +20,11 @@ Ce jeu de données contient des informations sur les plus grandes entreprises mo
 
 #### Problématiques soulevées
 
-1.  **Analyse de la capitalisation boursière**
+1.  **Analyse du jeu de donées et prédiction**
     -   Quels sont les secteurs les plus représentés parmi les entreprises ayant la plus grande capitalisation boursière ?\
-    -   Existe-t-il une corrélation entre la capitalisation et d’autres variables financières (PER, price-to-book, etc.) ?
+    -   Existe-t-il des modèles adaptés pour prédire les bénéfices future (`forwardPE`) et si une entreprise est sur/sous évalué (`PriceToBook`) ?\
+    -   Pouvons nous construire des groupes représentant bien l'ensemble de nos données ?\
 2.  **Performances ESG et responsabilité sociale**
-    -   Quel est l’impact des scores ESG sur la valorisation des entreprises ?\
-    -   Les entreprises ayant une forte capitalisation boursière ont-elles tendance à avoir de meilleures performances ESG ?
-3.  **Comparaisons sectorielles et géographiques**
-    -   Quels sont les pays qui dominent le classement des entreprises à forte capitalisation ?\
-    -   Comment les secteurs d’activité diffèrent-ils en termes de ratios financiers et d’engagement ESG ?
-4.  **Analyse prédictive et tendances**
-    -   Peut-on prédire la performance future d’une entreprise en fonction de ses indicateurs financiers et ESG ?\
-    -   Existe-t-il des anomalies statistiques qui mériteraient une étude plus approfondie ?
+    -   Pouvons nous trouver une correlation entre les secteurs et les scores ESG ?\
+    -   Les entreprises ayant une forte capitalisation boursière (nos individus) ont-elles tendance à avoir de meilleures performances ESG ?\
 

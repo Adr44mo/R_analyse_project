@@ -7,7 +7,15 @@ output: html_document
 
 ## Analyse exploratoire des données
 
-### 0. Répartition des entreprises par pays
+**Comparaisons sectorielles et géographiques**
+
+-   Quels sont les pays qui dominent le classement des entreprises à forte capitalisation ?\
+-   Comment les secteurs d’activité diffèrent-ils en termes de ratios financiers et d’engagement ESG ?
+
+**Analyse prédictive et tendances** 
+
+- Peut-on prédire la performance future d’une entreprise en fonction de ses indicateurs financiers et ESG ?\
+- Existe-t-il des anomalies statistiques qui mériteraient une étude plus approfondie ? \### 0. Répartition des entreprises par pays
 
 Un barplot est un bon moyen de visualiser la répartition des entreprises par pays. Cela permet de voir rapidement quels pays ont le plus d'entreprises dans le jeu de données.
 
@@ -62,7 +70,6 @@ ggplot(moyenne_par_tranche, aes(x = tranche_debt, y = moyenne_profit)) +
 
 -   **Ratio \> 3000 - 4000** : La rentabilité devient négative, ce qui suggère que ces entreprises ne parviennent plus à couvrir leurs charges financières. \### 2. Distribution de la Capitalisation Boursière par Secteur Un boxplot est un excellent moyen de visualiser la distribution de la capitalisation boursière par secteur, ce qui permet de comparer la taille des entreprises dans différents domaines d'activité. Commençons tout d'abord par compter le nombre d'entreprises par secteur pour voir la répartition.
 
-
 ### 2.Répartition du Nombre d'Entreprises par Secteur et de leutr Capitalisation Boursière
 
 ```{r, echo=FALSE}
@@ -80,11 +87,11 @@ ggplot(sector_counts, aes(x = reorder(Var1, -Freq), y = Freq, fill = Var1)) +
   scale_fill_viridis_d() # Palette de couleurs agréable
 ```
 
-- Industrials et Technology dominent avec le plus grand nombre d'entreprises.
+-   Industrials et Technology dominent avec le plus grand nombre d'entreprises.
 
-- Consumer Cyclical, Financial Services et Healthcare occupent une position intermédiaire.
+-   Consumer Cyclical, Financial Services et Healthcare occupent une position intermédiaire.
 
-- Real Estate, Energy et Utilities sont les moins représentés.
+-   Real Estate, Energy et Utilities sont les moins représentés.
 
 🔹 Cela reflète l'importance des secteurs industriels et technologiques dans l'économie actuelle.
 
@@ -100,10 +107,7 @@ ggplot(cleaned_data, aes(x = Continent, y = totalEsg, fill = Continent)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-**Attention** : Plus le score est élevé, plus l'entreprise impacte négativement l'environnement.
--   **Asie** : Score ESG le plus élevé, indiquant un impact environnemental
-plus important.
--   **Europe et Amérique du Nord** : Score ESG le plus bas, indiquant un impact environnemental relativement faible.
+**Attention** : Plus le score est élevé, plus l'entreprise impacte négativement l'environnement. - **Asie** : Score ESG le plus élevé, indiquant un impact environnemental plus important. - **Europe et Amérique du Nord** : Score ESG le plus bas, indiquant un impact environnemental relativement faible.
 
 ### 4. Comparaison de la Rentabilité (ROA vs ROE)
 
@@ -115,4 +119,5 @@ ggplot(cleaned_data, aes(x = returnOnAssets, y = returnOnEquity)) +
        y = "Rentabilité des Fonds Propres (ROE)") +
   theme_minimal()
 ```
+
 -   **Corrélation positive** : Les entreprises avec un ROA élevé ont également un ROE élevé, indiquant une gestion efficace des actifs et des fonds propres.

@@ -5,7 +5,7 @@ date: "2025-04-03"
 output: html_document
 ---
 
-## AFC : Analyse Factorielle des Correspondances
+### AFC : Analyse Factorielle des Correspondances
 
 Ici nous allons effectuer une **Analyse Factorielle des Correspondances** (AFC) sur les variables `sector` et `esgPerformance` de notre jeu de données.
 
@@ -16,7 +16,7 @@ contingence_table <- table(cleaned_data$sector, cleaned_data$esgPerformance)
 print(contingence_table)
 
 # Effectuer l'AFC
-afc_result <- CA(contingence_table, graph = TRUE)
+afc_result <- CA(contingence_table, graph = FALSE)
 
 # Visualiser les résultats avec un biplot
 fviz_ca_biplot(afc_result, repel = TRUE)
@@ -41,8 +41,13 @@ fviz_ca_col(afc_result, col.col = "cos2", gradient.cols = c("#00AFBB", "#E7B800"
   theme_minimal()
 
 ```
+Tout d'abord on voit que toutes les modalités sont bien représentées sur le graphique, ce qui est un bon signe.(le pire étant Basic Materials avec un cos2 légérement inférieur à 0.7.) 
 
-```{r}
+Ensuite, on remarque que les secteurs `Technology` et Real Estate sont très proches l'un de l'autre avec un score ESG tès faible. Les secteurs `Energy` et `Industrials` ont qand à eux un score ESG très élevé.
+
+### Profils des secteurs
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 Techology <- round(contingence_table["Technology",] / sum(contingence_table["Technology",]), 2)
 Energy <- round(contingence_table["Energy",] / sum(contingence_table["Energy",]), 2)
 Financial <- round(contingence_table["Financial Services",] / sum(contingence_table["Financial Services",]), 2)
@@ -60,3 +65,4 @@ print(M)
 barplot(t(M), xlim = c(0, ncol(t(M)) + 3), col = 1:12, legend.text = colnames(contingence_table),
         args.legend = list(x = "topright"))
 ```
+On observe que le secteur `Technology` est celui qui a le plus de chance d'avoir un score ESG faible. Le secteur `Energy` est celui qui a le plus de chance d'avoir un score ESG élevé. Le secteur `Financial Services` est celui qui a le plus de chance d'avoir un score ESG moyen.

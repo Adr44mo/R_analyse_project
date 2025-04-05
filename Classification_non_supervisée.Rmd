@@ -4,12 +4,72 @@ author: "moi"
 date: "2025-04-03"
 output: html_document
 ---
+## Classification non supervisée
 
-# Classification non supervisée
+### ACP : Analyse en Composantes Principales
 
-📌 1. Préparation des données On prépare les données en supprimant les variables inutiles et en s’assurant que les variables qualitatives sont bien en facteur.
+```{r, echo=FALSE,warning=FALSE, result ='hide',fig.show='hide', }
 
-```{r}
+# Copier le dataset nettoyé
+clean_data <- cleaned_data
+
+# Assigner les noms d'entreprises aux rownames et supprimer la colonne Name
+rownames(clean_data) <- clean_data$Name
+clean_data$Name <- NULL
+
+# On identifie toutes les colonnes quantitatives pour l'ACP
+quantitative_columns <- c("marketCap", "previousClose", "trailingPE", "forwardPE", 
+                          "priceToBook", "beta", "profitMargins", "enterpriseToRevenue", 
+                          "enterpriseToEbitda", "totalRevenue", "revenuePerShare", 
+                          "revenueGrowth", "grossMargins", "ebitdaMargins", "operatingMargins", 
+                          "returnOnAssets", "returnOnEquity", "debtToEquity", "currentRatio", 
+                          "quickRatio", "totalCash", "totalDebt", "bookValue", 
+                          "fiveYearAvgDividendYield", "payoutRatio", 
+                          "trailingAnnualDividendYield", "trailingAnnualDividendRate", 
+                          "totalEsg", "environmentScore", "socialScore", "governanceScore")
+
+# Sélection des variables quantitatives + les variables qualitatives pour habillage
+data_perf <- clean_data[, c(quantitative_columns, "sector", "Index")]
+
+# Effectuer l'ACP avec variables qualitatives en quali.sup
+res_pca <- PCA(data_perf, graph = TRUE, scale.unit = TRUE, ncp = 5, quali.sup = c((length(quantitative_columns) + 1), (length(quantitative_columns) + 2)))
+
+plot(res_pca, habillage = (length(quantitative_columns) + 2), select = "cos2 0.8", choix = "ind")
+
+```
+
+```{r, echo=FALSE, results='hide'}
+# Afficher les valeurs propres
+print(res_pca$eig)
+
+# Contributions des variables
+print(res_pca$var$contrib)
+```
+
+
+En appliquant une **Analyse en Composantes Principales** (ACP) sur l’ensemble de nos données quantitatives, nous obtenons **31 axes** principaux. Parmi eux, les 15 premiers axes permettent d'expliquer 80 % de la variance totale.
+
+**Observations**
+Si nous nous concentrons sur les 5 premiers axes, ils expliquent à eux seuls 40 % de la variance, répartie de la manière suivante :
+
+- Axe 1 : *priceToBook, enterpriseToRevenue, enterpriseToEbitda*
+
+- Axe 2 : *totalRevenue, totalCash, grossMargins, ebitdaMargins*
+
+- Axe 3 : *totalEsg, socialScore, ebitdaMargins*
+
+- Axe 4 : *currentRatio, quickRatio*
+
+- Axe 5 : *trailingAnnualDividendYield, trailingAnnualDividendRate*
+
+
+Avec une telle quantité de données et un grand nombre d’axes, la visualisation des résultats devient complexe. Pour mieux comprendre les structures sous-jacentes, nous allons donc réaliser une ACP ciblée sur les données **ESG**. Cette approche nous permettra d'identifier les principaux facteurs qui influencent spécifiquement les critères environnementaux, sociaux et de gouvernance.
+
+De plus exlure les données qualitative restraint l'analyse alors que nous avons des données qualitatives qui peuvent être très intéressantes à analyser. Nous allons donc réaliser une **Analyse Factorielle des Données Mixtes** (FAMD) pour inclure ces variables qualitatives dans notre analyse.
+
+### FAMD : Analyse Factorielle des Données Mixtes
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Charger les données nettoyées
 data = 0
 print(data)
@@ -27,27 +87,22 @@ data$esgPerformance <- as.factor(data$esgPerformance)
 data <- na.omit(data)
 ```
 
-📌 2. Analyse Factorielle des Données Mixtes (FAMD) On utilise FAMD (Analyse Factorielle des Données Mixtes) pour gérer variables quantitatives et qualitatives.
-
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # FAMD sur les données
-res_famd <- FAMD(data, graph = TRUE, ncp = 5)
+res_famd <- FAMD(data, graph = FALSE, ncp = 100)
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Cercle des corrélations
 plot(res_famd, choix = "quanti")
 
 # Graphique des individus
-plot(res_famd, choix = "ind")
+plot(res_famd, choix = "ind", cos2 = 0.8, habillage = "sector", label = "none", axes = c(1, 2), title = "FAMD - Graphique des individus")
 
 # changer les dimensions
-plot(res_famd, choix = "ind", axes = c(1,3),cos2 = 0.8)
+plot(res_famd, choix = "ind", axes = c(3,4),cos2 = 0.8)
 ```
-
-📌 3. Clustering avec k-means sur les premières composantes On applique k-means pour regrouper les entreprises.
-
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Afficher la variance expliquée par dimension
 print(res_famd$eig)
 
@@ -57,22 +112,32 @@ print(variance_cumulee)
 
 ```
 
-```{r}
+Nous observons que les axes 1 et 2 expliquent environ 10 % de la variance totale, tandis que les axes 3 et 4 expliquent environ 6 % supplémentaires. Cela signifie que les quatre premiers axes capturent environ 16% de la variance totale des données ce qui est très peu. Il nous faudrait 59 axes pour expliquer 80% de la variance.
+
+### Clustering
+
+Clustering avec k-means sur les premières composantes On applique k-means pour regrouper les entreprises. 
+
+Pour notre clustering K-means, nous choisissons d’utiliser les 30 premières composantes principales issues de la FAMD.
+Celles-ci permettent de capturer environ 55 % de la variance, tout en réduisant suffisamment la dimension pour obtenir un clustering plus stable et pertinent.
+Cela permet de conserver l'information essentielle tout en limitant les effets de bruit liés à la haute dimension.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Sélection des 5 premières dimensions
-coord <- res_famd$ind$coord[, 1:5]
+coord <- res_famd$ind$coord[, 1:30]
 
 # Choix du nombre de clusters (méthode de l'inertie)
 inertie.intra <- rep(0, 10)
-for (k in 1:20) {
+for (k in 1:100) {
   kmeans_res <- kmeans(coord, centers = k, nstart = 100)
   inertie.intra[k] <- kmeans_res$tot.withinss / kmeans_res$totss
 }
 
 # Affichage du graphique pour choisir le bon nombre de clusters
-plot(1:20, inertie.intra, type = "b", xlab = "Nb. de groupes", ylab = "% inertie intra")
+plot(1:100, inertie.intra, type = "b", xlab = "Nb. de groupes", ylab = "% inertie intra")
 
 # On choisit 3 groupes ici (à ajuster selon le graphique)
-kmeans_result <- kmeans(coord, centers = 3, nstart = 100)
+kmeans_result <- kmeans(coord, centers = 5, nstart = 100)
 
 # Ajout des clusters aux données
 data_cluster <- cbind.data.frame(data, cluster = factor(kmeans_result$cluster))
@@ -83,79 +148,78 @@ table(data_cluster$cluster)
 
 ```
 
-📌 4. Classification Hiérarchique (CAH) avec HCPC On applique la Classification Ascendante Hiérarchique (CAH) pour vérifier si les groupes sont cohérents.
+D'après les résultat du graphe de l'inertie intra, nous devrions choisir un nombre de groupes entre 20 et 30 mais pour des raisons de visualisation nous allons en choisir 5. Ce qui nous donne la répartition suivante :
+  1   2   3   4   5 
+ 35  52  37 209 251 
+ 
 
-```{r}
+### CAH : Classification Hiérarchique
+
+Avec HCPC On applique la Classification Ascendante Hiérarchique (CAH) pour vérifier si les groupes sont cohérents.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Lancer la CAH sur les résultats de FAMD
-cah_res <- HCPC(res_famd, nb.clust = -1, graph = TRUE)
+cah_res <- HCPC(res_famd, nb.clust = 5, graph = TRUE)
 ```
 
-📌 5. Interprétation des clusters On analyse les groupes obtenus.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+table(data_cluster$cluster, cah_res$data.clust$clust)
 
-```{r}
-table(data_cluster$cluster)
+```
 
+On peut observer que les groupes obtenus par la CAH sont très similaires à ceux obtenus par K-means. A cause des approximations que nous avons due faire pour en arriver là, il est difficile de faire une analyse pertinentes des différent groupes.
+Nous pouvons toutefois observer les moyennes des variables par cluster pour essayer de les interpréter:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Moyennes des variables par cluster
 aggregate(data_cluster, by = list(data_cluster$cluster), FUN = mean)
 
 
 ```
+**Cluster 1 – “Responsables et performants”**
+Rentabilité très élevée : marges brutes et EBITDA très importantes.
 
-```{r}
+- Entreprise bien gérée : ratios financiers sains, peu de dette.
 
-# Contribution des variables aux axes, du plus au moins impactant
-# Boucle sur toutes les dimensions
-for (i in 1:ncol(res_famd$var$contrib)) {
-  cat("\nDimension", i, ":\n")
-  
-  # Trier les contributions des variables pour la dimension i
-  contributions <- sort(res_famd$var$contrib[, i], decreasing = TRUE)
-  
-  # Afficher les 5 premières variables les plus influentes
-  print(head(contributions, 5))
-}
+- Bon score ESG (~14) : faible impact environnemental, social et de gouvernance.
 
+Des entreprises efficaces sur le plan financier.
 
-```
+**Cluster 2 – “Solides mais perfectibles socialement”**
+- Bonne solidité financière : forte trésorerie, bon rendement.
 
-🔹 Interprétation des dimensions 
+- Rentabilité modérée mais stable.
 
-1.Dimension 1 (Axe principal - Facteurs financiers)
+- ESG correct (~18)
 
-- Regroupe des variables économiques et financières clés (revenus, dividendes, valeur comptable).
+Des entreprises solides avec un profil ESG moyen.
 
-- Représente la solidité financière et la performance économique d’une entreprise.
+**Cluster 3 – “Entreprise à fort impact”**
+- Très grosses capitalisations et CA.
 
-- Une forte valeur sur cet axe indique une entreprise avec une capitalisation boursière élevée et de bons résultats financiers.
+- Ratios de valorisation parfois extrêmes (PE, Price-to-Book).
 
-2.Dimension 2 (Facteurs ESG et environnementaux)
+- Scores ESG très mauvais (~25-27) sur toutes les dimensions : environnement, social, gouvernance.
 
-- Met en avant les scores ESG (Environnement, Social, Gouvernance) et le secteur d'activité.
+Des géants mondiaux performants mais très mal notés sur l’impact durable.
 
-- Représente l'engagement des entreprises envers les pratiques durables et responsables.
+**Cluster 4 – “Surévalués, peu efficients”**
+- Ratios de valorisation élevés (PE, Price-to-Book) → potentiellement surévalués.
 
-- Une entreprise avec un score élevé ici est bien notée sur les critères ESG et est dans un secteur où ces aspects sont valorisés.
+- Rentabilité opérationnelle plus faible, marges réduites.
 
-3.Dimension 3 (Marge et rentabilité sectorielle)
+- Scores ESG modérés (~16.5).
 
-- Regroupe des indicateurs de rentabilité comme l'EBITDA, les marges opérationnelles et le secteur.
+Profil d’entreprises moins performantes, mais avec un profil ESG moyen.
 
-- Indique la capacité d’une entreprise à générer des profits par rapport à son secteur.
+**Cluster 5 – “Rentables mais à fort risque social et environnemental”**
+Rentabilité correcte à bonne, marges bien présentes.
 
-- Une valeur élevée ici correspond à une entreprise très rentable dans son industrie.
+- Ratios financiers stables, bon niveau de cash.
 
-4.Dimension 4 (Retour sur actifs et rendement des investissements)
+- Score ESG élevé (~26) → fort impact environnemental et social, surtout environnement (>10).
 
-- Focalise sur le retour sur actifs (ROA), le rendement sur investissements et l’appartenance à un groupe sectoriel.
+Des entreprises qui semblent performantes, mais très mal notés RSE, en particulier sur l'écologie.
 
-- Met en évidence les entreprises qui utilisent efficacement leurs ressources pour générer des profits.
-
-- Une valeur forte ici suggère une excellente gestion des actifs et un bon retour sur investissement.
-
-5.Dimension 5 (Santé financière et liquidité)
-
-- Associe le secteur, la liquidité (current ratio, quick ratio) et le pays.
-
-- Capture la capacité d’une entreprise à faire face à ses obligations financières à court terme.
-
-- Une valeur élevée indique une entreprise avec une bonne gestion de sa trésorerie et un faible risque de liquidité.
+### Conclusion
+Nous avons réalisé une analyse en composantes principales (ACP) et une analyse factorielle des données mixtes (FAMD) sur les données financières de notre jeu de données. Ces analyses nous ont permis d'identifier des groupes d'entreprises ayant des caractéristiques similaires en termes de performance financière.
