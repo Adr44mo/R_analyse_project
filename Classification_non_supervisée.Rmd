@@ -170,7 +170,7 @@ table(data_cluster$cluster, cah_res$data.clust$clust)
 On peut observer que les groupes obtenus par la CAH sont très similaires à ceux obtenus par K-means. A cause des approximations que nous avons due faire pour en arriver là, il est difficile de faire une analyse pertinentes des différent groupes.
 Nous pouvons toutefois observer les moyennes des variables par cluster pour essayer de les interpréter:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Moyennes des variables par cluster
 aggregate(data_cluster, by = list(data_cluster$cluster), FUN = mean)
 
