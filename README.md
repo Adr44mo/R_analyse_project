@@ -30,7 +30,7 @@ Le projet est structuré autour d’un **fichier principal `main.Rmd`**, qui ser
 -   `DataCleanning.Rmd` : nettoyage, sélection et préparation des données
 -   `ACP.Rmd` : analyse en composantes principales
 -   `AFC.Rmd` : analyse factorielle des correspondances
--   `Classification.Rmd` : classification non supervisée
+-   `Classification_non_supervisée.Rmd` : classification non supervisée
 -   `ClassificationSupervisee.Rmd` : classification supervisée
 -   `Conclusion.Rmd` : conclusion et perspectives
 
