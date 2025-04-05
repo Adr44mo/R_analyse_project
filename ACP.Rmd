@@ -7,7 +7,7 @@ output: html_document
 
 ## ACP : Analyse en Composantes Principales
 
-```{r, echo=FALSE,warning=FALSE, result ='hide'}
+```{r, echo=FALSE,warning=FALSE, result ='hide',fig.show='hide', }
 
 # Copier le dataset nettoyé
 clean_data <- cleaned_data
@@ -33,15 +33,17 @@ data_perf <- clean_data[, c(quantitative_columns, "sector", "Index")]
 # Effectuer l'ACP avec variables qualitatives en quali.sup
 res_pca <- PCA(data_perf, graph = TRUE, scale.unit = TRUE, ncp = 5, quali.sup = c((length(quantitative_columns) + 1), (length(quantitative_columns) + 2)))
 
+plot(res_pca, habillage = (length(quantitative_columns) + 2), select = "cos2 0.8", choix = "ind")
+
+```
+```{r, echo=FALSE, results='hide'}
 # Afficher les valeurs propres
 print(res_pca$eig)
 
 # Contributions des variables
 print(res_pca$var$contrib)
-
-plot(res_pca, habillage = (length(quantitative_columns) + 2), select = "cos2 0.8", choix = "ind")
-
 ```
+
 
 En appliquant une **Analyse en Composantes Principales** (ACP) sur l’ensemble de nos données quantitatives, nous obtenons **31 axes** principaux. Parmi eux, les 15 premiers axes permettent d'expliquer 80 % de la variance totale.
 
@@ -84,7 +86,7 @@ plot(res_pca_esg, habillage = 6, select = "cos2 0.99",choix = c("ind"))
 
 ```
 
-```{r}
+```{r, results='hide',echo=FALSE }
 # Afficher les valeurs propres de l'ACP sur les données ESG
 res_pca_esg$eig
 # Afficher les contributions des variables de l'ACP sur les données ESG

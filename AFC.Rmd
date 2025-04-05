@@ -5,51 +5,58 @@ date: "2025-04-03"
 output: html_document
 ---
 
-```{r}
-# 🟢 2. Créer le tableau de contingence entre `sector` et `esgPerformance`
+## AFC : Analyse Factorielle des Correspondances
+
+Ici nous allons effectuer une **Analyse Factorielle des Correspondances** (AFC) sur les variables `sector` et `esgPerformance` de notre jeu de données.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# Créer le tableau de contingence entre `sector` et `esgPerformance`
 contingence_table <- table(cleaned_data$sector, cleaned_data$esgPerformance)
 
 print(contingence_table)
 
-# 🟢 3. Effectuer l'AFC
+# Effectuer l'AFC
 afc_result <- CA(contingence_table, graph = TRUE)
 
-# 🟢 4. Visualiser les résultats avec un biplot
+# Visualiser les résultats avec un biplot
 fviz_ca_biplot(afc_result, repel = TRUE)
 
 ```
 
-Explications des résultats de l'AFC:
+Résumé des variables OUT_PERF \> LEAD_PERF \> AVG_PERF \> LAG_PERF \> UNDER_PERF Et comme pour l'ACP, plus la valeur est élévée, plus la l'entreprise impacte négativement. Donc les "meilleurs" secteurs sont ceux qui ont la valeur la plus basse (LAG/UNDER).
 
-```{r}
-# 🟢 6. Visualiser les contributions des modalités
+On remarque également que les deux premiers axes expliquent plus de 90 % de la variance totale. Ce qui est plutôt logique étant donné la relation entre nos variables est assez linéaire.
+
+####Explications des résultats de l'AFC:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+# Visualiser les contributions des modalités
 fviz_ca_row(afc_result, col.row = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE) +
   labs(title = "Contributions des modalités aux axes de l'AFC") +
   theme_minimal()
 
-# 🟢 7. Visualiser les contributions des variables
+#Visualiser les contributions des variables
 fviz_ca_col(afc_result, col.col = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE) +
   labs(title = "Contributions des variables aux axes de l'AFC") +
   theme_minimal()
 
 ```
+
 ```{r}
 Techology <- round(contingence_table["Technology",] / sum(contingence_table["Technology",]), 2)
 Energy <- round(contingence_table["Energy",] / sum(contingence_table["Energy",]), 2)
 Financial <- round(contingence_table["Financial Services",] / sum(contingence_table["Financial Services",]), 2)
 
-# 6. Calcul du profil moyen
+# Calcul du profil moyen
 moyen <- round(apply(contingence_table, 2, sum) / sum(apply(contingence_table, 2, sum)), 2)
 
-# 7. Créer une matrice contenant tous les profils
+#Créer une matrice contenant tous les profils
 M <- rbind(Techology, Energy, Financial, moyen = moyen)
 
-# 🟢 8. Afficher la matrice des profils
+# Afficher la matrice des profils
 print(M)
 
-# 🟢 9. Visualisation en barplot
+# Visualisation en barplot
 barplot(t(M), xlim = c(0, ncol(t(M)) + 3), col = 1:12, legend.text = colnames(contingence_table),
         args.legend = list(x = "topright"))
 ```
-
-

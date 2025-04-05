@@ -45,22 +45,22 @@ library(factoextra)   # Pour la visualisation
 
 ```
 
-```{r child = "AFC.Rmd"}
+#```{r child = "AFC.Rmd"}
 
-```
+#```
 
-```{r child = "Classification_non_supervisée.Rmd"}
+#```{r child = "Classification_non_supervisée.Rmd"}
 
-```
+#```
 
-```{r child = "Classification_supervisée.Rmd"}
+#```{r child = "Classification_supervisée.Rmd"}
 
-```
+#```
 
-```{r child = "Annex.Rmd"}
+#```{r child = "Annex.Rmd"}
 
-```
+#```
 
-```{r child = "Exploration.Rmd"}
+#```{r child = "Exploration.Rmd"}
 
-```
+#```
