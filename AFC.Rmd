@@ -27,7 +27,7 @@ Résumé des variables OUT_PERF \> LEAD_PERF \> AVG_PERF \> LAG_PERF \> UNDER_PE
 
 On remarque également que les deux premiers axes expliquent plus de 90 % de la variance totale. Ce qui est plutôt logique étant donné la relation entre nos variables est assez linéaire.
 
-####Explications des résultats de l'AFC:
+#### Explications des résultats de l'AFC:
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # Visualiser les contributions des modalités
