@@ -33,6 +33,8 @@ Le projet est structuré autour d’un **fichier principal `main.Rmd`**, qui ser
 -   `Classification_non_supervisée.Rmd` : classification non supervisée
 -   `ClassificationSupervisee.Rmd` : classification supervisée
 -   `Conclusion.Rmd` : conclusion et perspectives
+-   `Annex.Rmd` : expliquation des variables/colonnes du jeu de données
+-   `Exploration.Rmd` : Exploration basique des données
 
 ------------------------------------------------------------------------
 
