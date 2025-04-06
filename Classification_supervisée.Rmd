@@ -223,7 +223,7 @@ cvlasso$lambda.min
 
 Nous allons maintenant choisir le lambda optimal et faire la prédiction sur le jeu de test.
 
-```{r,warning=FALSE,message=FALSE}
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
 
 class_logit_lasso=predict(cvlasso, newx = X_test, s = 'lambda.min', type = "class")
 table(class_logit_lasso,Y_test)
@@ -240,7 +240,7 @@ Nous avons une matrice de confusion bien répartie entre les classes et une pré
 
 Nous allons mainteant faire une LDA et une QDA. A priori, nous n'avons pas d'information sur l'homoscédasticité de nos données, nous allons donc faire les deux méthodes et les comparer pour voir à posteriori si cela est pertinent.
 
-```{r,warning=FALSE,message=FALSE}
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
 # Entraîner LDA et QDA
 res_lda <- lda(priceToBook ~ ., data_train_priceToBook_smote)
 res_qda <- qda(priceToBook ~ ., data_train_priceToBook_smote)
@@ -281,7 +281,7 @@ Nous remarquons des résultats étonnant, malgré des précisions proches, l'air
 ### Prédiction de la variable priceToBook avec Random Forest
 
 Nous allons maintenant effectuer une Random Forest
-```{r,warning=FALSE,message=FALSE}
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
 set.seed(1)
 library(randomForest)
 rf_model_priceToBook <- randomForest(priceToBook ~ ., data = data_train_priceToBook_smote, ntree = 100)
@@ -299,7 +299,7 @@ Nous avons une matrice de confusion bien répartie entre les classes et une pré
 ### Comparaison des modèles et conclusion
 Enfin, nous allons comparer tout nos modèles et conclure.
 
-```{r}
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
 result=matrix(NA, ncol=5, nrow=2)
 rownames(result)=c('accuracy', 'AUC')
 colnames(result)=c('lda', 'qda', 'RF', "adaboost", 'logit_lasso')
@@ -313,7 +313,7 @@ result
 
 ```
 
-```{r}
+```{r,warning=FALSE,message=FALSE,echo=FALSE}
 plot(ROC_lda, xlim=c(1,0),print.auc=TRUE,print.auc.y=0.5, col=1, lwd=2, main="Courbes ROC")
 plot(ROC_qda, add=TRUE, col=2,print.auc=TRUE,print.auc.y=0.4, lwd=2, main="Courbes ROC")
 plot(ROC_rf_priceToBook, add=TRUE, col=3,print.auc=TRUE,print.auc.y=0.3, lwd=2, main="Courbes ROC")
