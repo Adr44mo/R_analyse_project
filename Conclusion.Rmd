@@ -1,0 +1,17 @@
+---
+title: "conclusion"
+author: "moi"
+date: "2025-04-06"
+output: html_document
+---
+## Conclusion
+
+Ce projet a permis d’explorer les apports des méthodes d’apprentissage statistique, tant supervisées que non supervisées, dans le contexte de l’analyse financière enrichie par des données ESG. 
+
+Nous avons d’abord mené une phase exploratoire des données (en annexe) puis une phase d’analyse non supervisée à travers une **ACP** (Analyse en Composantes Principales) pour les variables quantitatives, et une **FAMD** (Analyse Factorielle des Données Mixtes) pour prendre en compte à la fois les variables qualitatives et quantitatives présentes dans notre base. La FAMD s’est révélée plus adaptée à notre jeu de données hétérogène qui doit tenir compte de variables qualitatives clef dans une analyse financière (secteurs, région...), et a permis une meilleure visualisation de la structure des individus. Cependant, ces méthodes n’ont pas permis de réduire significativement la dimension des données sans perte d’information, ce qui limite leur usage pour la simplification du modèle. 
+
+Par ailleurs, les variables **ESG** ont été intégrées aux analyses, afin d’analyser leurs liens avec les secteurs d’activités et les liens qui les relient.  
+
+L’analyse supervisée a porté sur la **prédiction du ratio forwardPE** (bénéfices futurs estimés) via une méthode de Random Forest prenant en compte l’ensemble des données. Plusieurs méthodes ont été testées pour prédire la variable **priceToBook** (estimation de l’évaluation d’une entreprise), telles que la régression **logistique Lasso, LDA,QDA, Adaboost** et enfin une **Random Forest**. Pour faire face au déséquilibre des classes, un rééchantillonnage par **SMOTE** a été utilisé, ce qui a permis d'améliorer les performances de certains modèles. La Random Forest est la méthode la plus pertinente pour la prédiction de la variable priceToBook avec une précision de 95% et une aire sous la courbe ROC de 0,95.  
+
+En somme, ce projet montre l’intérêt des outils de classifications appliqués à la finance d’entreprise et à l’analyse ESG. Malgré les limitations rencontrées sur la réduction de dimension, les modèles développés ouvrent la voie à des prédictions fiables, tout en soulignant l’importance d’un traitement adapté des données mixtes pour une analyse pertinente. 

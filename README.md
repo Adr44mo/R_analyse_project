@@ -63,3 +63,11 @@ Vous pouvez donc : - Exécuter uniquement une ou deux parties sans devoir compil
 -   Le fichier `DataCleanning.Rmd` est la **seule dépendance obligatoire** : il doit être exécuté **avant toute autre analyse** pour garantir que les données sont bien présentes dans l’environnement.
 
 ------------------------------------------------------------------------
+
+## 📚 Jeu de données
+
+Le jeu de données utilisé dans ce projet à été extrait automatiquement depuis l'API de yahoo finance.\
+Il s'agit d'un fichier CSV contenant des données financières sur les actions de plusieurs entreprises.\
+Le fichier est divisé en plusieurs colonnes, chacune représentant une variable différente.\
+Les données peuvent être fausse ou incomplètes.\
+
